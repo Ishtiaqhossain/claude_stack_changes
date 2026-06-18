@@ -7,9 +7,15 @@ export class TextFormatter {
   }
 }
 
-// Registry mapping a format name to a formatter instance. New output
-// formats register here; callers look one up by name. Today only 'text'
-// is registered, so behavior is unchanged.
+export class CsvFormatter {
+  format(title, rows) {
+    const lines = ['label,value'];
+    for (const row of rows) lines.push(`${row.label},${row.value}`);
+    return lines.join('\n');
+  }
+}
+
+// Registry mapping a format name to a formatter instance.
 const formatters = { text: new TextFormatter() };
 
 export function getFormatter(name) {
@@ -20,4 +26,10 @@ export function getFormatter(name) {
 
 export function registerFormatter(name, formatter) {
   formatters[name] = formatter;
+}
+
+// Feature flag: CSV export stays off until it is wired into the CLI (next PR).
+// With the flag off, 'csv' is not registered and existing behavior is unchanged.
+if (process.env.ENABLE_CSV_EXPORT === 'true') {
+  registerFormatter('csv', new CsvFormatter());
 }
