@@ -1,15 +1,14 @@
-// A Report holds rows and renders them. Today it only renders plain text.
+import { TextFormatter, CsvFormatter } from './formatter.js';
+
+// A Report holds rows and renders them in a chosen format.
 export class Report {
   constructor(title, rows) {
     this.title = title;
     this.rows = rows; // array of { label, value }
   }
 
-  render() {
-    const lines = [this.title, '='.repeat(this.title.length)];
-    for (const row of this.rows) {
-      lines.push(`${row.label}: ${row.value}`);
-    }
-    return lines.join('\n');
+  render(format = 'text') {
+    const formatter = format === 'csv' ? new CsvFormatter() : new TextFormatter();
+    return formatter.format(this.title, this.rows);
   }
 }

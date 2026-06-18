@@ -9,3 +9,11 @@ test('renders a report as plain text', () => {
   ]);
   assert.equal(report.render(), 'Sales\n=====\nApples: 120\nOranges: 90');
 });
+
+test('renders a report as CSV', () => {
+  const report = new Report('Sales', [
+    { label: 'Apples', value: 120 },
+    { label: 'Oranges', value: 90 },
+  ]);
+  assert.equal(report.render('csv'), 'label,value\nApples,120\nOranges,90');
+});
