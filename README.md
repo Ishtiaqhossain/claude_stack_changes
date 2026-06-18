@@ -1,7 +1,7 @@
 # claude_pr_skills
 
 A Claude Code skill — **[`splitting-changes-into-prs`](splitting-changes-into-prs/SKILL.md)** —
-plus worked, **buildable** examples of it in two languages.
+plus a worked, **buildable** example of it.
 
 > **One diff, one thesis.** Each change should make exactly one argument — and that argument
 > should be buildable and testable by itself.
@@ -12,89 +12,60 @@ plus worked, **buildable** examples of it in two languages.
 change and carves it into a stack of small, single-thesis units of review. Highlights:
 
 - **One diff, one thesis.** A change is an argument with one topic sentence; the reviewer
-  evaluates one claim. "Small" is a *communication* rule, and splitting is, above all, the
-  *empathetic* option for the reviewer.
+  evaluates one claim. "Small" is a *communication* rule, and splitting is the *empathetic*
+  option for the reviewer.
 - **Refactor-first.** When a feature needs existing code reshaped, the reshaping ships *before*
   the feature — as its own changes — so the feature lands as a small, obvious diff.
 - **Atomic commits ≠ atomic reviews.** The unit of review is the whole diff, so split the
   *reviewable unit* into a **stack** — a clean commit history inside one big PR isn't enough.
-- **Tool-agnostic.** Written in neutral terms (a "change") with mappings for GitHub PRs,
-  Sapling/Phabricator diffs, and Gerrit CLs — plus the native stacking workflow for each.
+- **Tool-agnostic.** Neutral terms (a "change") with mappings for GitHub PRs, Sapling/
+  Phabricator diffs, and Gerrit CLs — plus the native stacking workflow for each.
 - **Built for scale.** Ownership-aligned splits, presubmit economics, feature-gating over long
   branches, right-sizing (don't over-split), and Google's small-CL / review-speed guidance.
 
-## Worked examples — before vs. after
+## The example: `demo/` — an expense-report tool
 
-Both demos land the **same change — CSV export — two ways**: as a single monolith, and as the
-refactor-first stack the skill prescribes. Every branch was **built and unit-tested on its own**,
-so each step is genuinely buildable and testable in isolation. PRs are live on this repo.
+[`demo/`](demo/) starts (on `main`) as a naive, **text-only** expense report. The feature we
+then land — **multi-format export (text/csv/json/html/markdown/table/summary) + filtering +
+sorting + grouped subtotals + per-category budgets + a CLI** — is landed **two ways**:
 
-| | PR(s) | What a reviewer sees |
+| | How | What a reviewer faces |
 |---|---|---|
-| **Before** ❌ | one monolith PR | a formatter abstraction + a `Report` refactor + the CSV feature + wiring jammed into one commit — you can't tell safe restructuring from behavior change |
-| **After** ✅ | a refactor-first stack of 4 PRs | each PR makes one argument, builds + tests on its own, and its title states its stack position and prerequisite |
-
-<details open>
-<summary><b>🟨 JavaScript / Node</b> — <a href="demo/"><code>demo/</code></a></summary>
-
-A tiny Node project: a `Report` module that renders rows as plain text.
+| **Before** ❌ | **one monolith PR** — `monolith/expense-report` | **1019 insertions** in a single diff that mixes three refactors (model, formatter seam, query pipeline) with five distinct features. One LGTM. |
+| **After** ✅ | a **refactor-first stack of 8 PRs** — `expense-stack/1…8` | each PR makes one argument, builds + tests on its own (43–355 lines), and the three refactors land **first** so each feature is a small diff |
 
 ```bash
 cd demo
 npm run build   # syntax-check + run the entry point
-npm test        # node --test
+npm test        # node --test  (51 tests at the top of the stack)
+
+node src/index.js --format markdown --group-by category   # try it
+node src/index.js --budget --format summary
 ```
 
-**Before (monolith):** [#1 feat: add CSV export to reports](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/1)
+### The refactor-first stack
 
-**After (refactor-first stack):**
+The first three changes are **pure refactors** — the base report test is **byte-for-byte
+unchanged and green through all of them**, which is the proof they changed no behavior. Only
+then do the features land, each a small diff against the prepared seams.
 
-| PR | One thing | Proof |
-|----|-----------|-------|
-| [#2 `[1/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/2) | extract `Report` core into a seam | tests **unchanged**, green → behavior preserved |
-| [#3 `[2/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/3) | introduce a Formatter registry | tests **unchanged**, green |
-| [#4 `[3/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/4) | add `CsvFormatter` behind a flag | new CSV unit test; flag off → no change |
-| [#5 `[4/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/5) | enable CSV export + wire up CLI | integration test: `--csv` emits CSV |
+| # | Branch | Thesis | Size | Kind |
+|---|--------|--------|------|------|
+| 1 | `…/1-model` | typed `Money`/`Transaction` model | ~104 | refactor |
+| 2 | `…/2-query-pipeline` | route rendering through a query pipeline (identity) | ~49 | refactor |
+| 3 | `…/3-formatter-seam` | extract a `Formatter` interface + registry | ~79 | refactor |
+| 4 | `…/4-formatters` | add csv/json/html/markdown/table/summary | ~355 | feature |
+| 5 | `…/5-filtering` | filter by date / category / min amount | ~43 | feature |
+| 6 | `…/6-sort-group` | sorting + grouping with subtotals | ~139 | feature |
+| 7 | `…/7-budgets` | per-category budgets | ~143 | feature |
+| 8 | `…/8-cli` | wire up the CLI + enable end-to-end | ~133 | feature |
 
-</details>
-
-<details>
-<summary><b>🤖 Android / Kotlin</b> — <a href="demo-android/"><code>demo-android/</code></a></summary>
-
-A lean Android app (plain `Activity`, no androidx): a `Report` rendered in a `TextView`.
-Gradle 8.9 / AGP 8.7.2 / Kotlin 2.0.21 / `compileSdk 36`. The splittable logic is pure Kotlin
-and unit-tested on the JVM, so each step is testable without an emulator.
-
-```bash
-cd demo-android
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"  # any JDK 17+
-export ANDROID_HOME="$HOME/Library/Android/sdk"                                 # SDK w/ platform 36
-
-./gradlew :app:testDebugUnitTest   # JVM unit tests (Report / Formatter logic)
-./gradlew :app:assembleDebug       # build the debug APK
-```
-
-**Before (monolith):** [#6 Android: feat: add CSV export to reports](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/6)
-
-**After (refactor-first stack):**
-
-| PR | One thing | Proof |
-|----|-----------|-------|
-| [#7 `[1/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/7) | extract `Report` core into a `ReportFormatter` seam | tests **unchanged**, green → behavior preserved |
-| [#8 `[2/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/8) | introduce a Formatter registry | tests **unchanged**, green |
-| [#9 `[3/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/9) | add `CsvFormatter` behind a `FeatureFlags` gate | new `CsvFormatterTest`; flag off → no change |
-| [#10 `[4/4]`](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/10) | enable CSV export + share intent | end-to-end `render("csv")` test |
-
-</details>
+> The monolith and the eight stacked PRs are on the repository's **Pull Requests** tab — open
+> the monolith and try to review it, then walk the stack and feel the difference.
 
 ## Repository layout
 
 ```
 splitting-changes-into-prs/SKILL.md   the skill
-demo/                                  JavaScript / Node example
-demo-android/                          Android / Kotlin example
+demo/                                  the expense-report example (base on main)
 ```
-
-Each language tells the **same story**: the monolith bundles four concerns into one
-unreviewable diff; the stack lands them as four single-thesis changes, refactors first, with
-the dependency spelled out in every title.
