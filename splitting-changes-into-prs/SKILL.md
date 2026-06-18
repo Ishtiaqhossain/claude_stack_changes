@@ -1,17 +1,26 @@
 ---
 name: splitting-changes-into-prs
-description: Splits a large change into small, single-purpose units of review — PRs, diffs, or CLs — that are each buildable and testable on their own. Use when a change is too big to review, when a feature builds on existing code, when working in a large monorepo with stacked diffs, or when you need to land dependent changes and make the ordering clear. Triggers on "split this PR/diff/CL", "break up this change", "stack these".
+description: Splits a large change into small, single-purpose units of review — PRs, diffs, or CLs — each making one argument (one diff, one thesis) and each buildable and testable on its own. Use when a change is too big to review, when a feature builds on existing code, when working in a large monorepo with stacked diffs, or when you need to land dependent changes and make the ordering clear. Triggers on "split this PR/diff/CL", "break up this change", "stack these", "one diff one thesis".
 ---
 
 # Splitting Changes Into PRs
 
 ## Overview
 
-**Each change should do exactly one thing, and should be buildable and testable by itself.**
+**One diff, one thesis.** Each change should make exactly one argument — and that argument
+should be buildable and testable by itself.
 
-A large change is hard to review well — reviewers skim it, approve it, and miss bugs. A
-sequence of small, single-purpose changes is the opposite: each one is easy to reason about,
-reverts cleanly, bisects precisely, and gets *real* review instead of a reflexive LGTM.
+Think of a change as a *paragraph with a topic sentence*, or a *proof with a single claim*. The
+reviewer's job is to evaluate one thesis: "does this change do what it says, correctly?" If they
+can't state the thesis in a sentence, the change is carrying more than one — split it. "One
+thing" isn't a size rule; it's a *communication* rule. Size follows from it.
+
+The deepest reason to do this is **empathy for the reviewer.** A small, single-thesis change
+respects their attention: it can be reviewed in one sitting, reasoned about completely, and
+approved with confidence rather than a reflexive LGTM. A large change is hard to review well —
+reviewers skim it, approve it, and miss bugs. A sequence of single-thesis changes is the
+opposite: each one is easy to reason about, reverts cleanly, and bisects precisely. As one
+senior reviewer put it, small changes are simply *the more empathetic option*.
 
 At the scale of a large engineering org this stops being a nicety and becomes load-bearing.
 With thousands of engineers committing to a shared trunk, small single-purpose changes are
@@ -53,22 +62,30 @@ Everything below applies in any of these. Where mechanics differ, see
 fix into a three-change stack — that's review theater. The goal is *one thing per change*,
 not *minimum lines per change*.
 
-## The One-Thing Rule
+## The One-Thing Rule (One Diff, One Thesis)
 
-A change does "one thing" when it passes three acceptance tests:
+A change carries exactly one thesis when it is the *smallest chunk that can be understood,
+tested, and rolled back on its own.* Concretely, it passes these acceptance tests:
 
+- **Statable in one sentence** — you can write its thesis without "and." If the honest title is
+  "Add caching **and** refactor the client," that's two theses → two changes.
+- **Understandable alone** — a reviewer gets the point from *this* diff, without reading the
+  changes above or below it in the stack.
 - **Buildable alone** — checked out on its own, the revision compiles. No references to code
   that only exists in a sibling change.
 - **Testable alone** — the change ships the tests for its own behavior, and the suite is green
-  at that change's revision.
-- **Presubmit-green alone** — it passes CI / presubmit independently, at its own position in
-  the stack — not only when combined with the changes above it.
-
-> **Litmus test:** Can you write the title without the word "and"? If the honest title is
-> "Add caching **and** refactor the client", that's two changes.
+  at that change's revision (and passes presubmit/CI independently, at its position in the stack).
+- **Revertable alone** — it can be rolled back without dragging unrelated work with it.
 
 A change that builds but has no way to prove it works is not done — "buildable and testable by
 itself" is one requirement, not two optional ones.
+
+> **Atomic commits are not atomic reviews.** The unit of review is the *diff a reviewer opens* —
+> the whole PR/diff/CL — not your individual commits. Splitting a 900-line change into tidy
+> 80-line commits inside **one** PR still asks the reviewer to evaluate 900 lines and many
+> theses at once. To make a change reviewable, split the *reviewable unit*: open a **stack** of
+> small changes, not one big change with a clean commit history. (Tidy commits are still worth
+> it — they just aren't a substitute for splitting the review.)
 
 ## Right-Sizing: Don't Over-Split
 
@@ -137,9 +154,12 @@ prepare the ground come first; the feature that uses them comes last.
 
 ### 4. Size & scope each change
 
-Target ~200–400 lines of meaningful diff — but never split a single concern below the point
-where it can stand alone (see [Right-Sizing](#right-sizing-dont-over-split)). Two scale-aware
-criteria sharpen the split:
+Google's eng-practices put numbers on it: **~100 lines is a reasonable CL, ~1000 is usually too
+large.** And *distribution matters as much as the count* — 200 lines in one file can be fine,
+but 200 lines spread across 50 files is usually too large. Treat one cohesive thesis of a few
+hundred lines as the target, but never split a single concern below the point where it can stand
+alone (see [Right-Sizing](#right-sizing-dont-over-split)). Two scale-aware criteria sharpen the
+split:
 
 - **Split along ownership boundaries.** Carve changes so each one touches a coherent
   OWNERS / CODEOWNERS set. A change needing six teams' approval blocks on the slowest of six;
@@ -306,8 +326,12 @@ of fifty changes.
 The practices that make this work in a large org:
 
 - **Small-change culture.** Google's publicly documented code-review guidance is explicit that
-  *small CLs* get reviewed faster and more thoroughly and are easier to roll back. Make "small
-  and single-purpose" the default, not the exception — reviewers come to expect it and review
+  *small CLs* are reviewed **faster** and **more thoroughly**, have **fewer bugs**, waste less
+  effort when rejected, **merge** more cleanly, are **easier to roll back**, and **don't block**
+  the author (who can stack the next change while this one is in review). The flip side is review
+  *speed*: slow reviews are the top source of developer frustration, and Google's standard is a
+  **one-business-day** maximum to respond — a bar small changes make easy to hit and large ones
+  make impossible. Make "small and single-thesis" the default, not the exception; review
   velocity compounds.
 - **Presubmit economics.** Every change must pass presubmit on its own. A small affected-target
   set means cheap, fast, parallelizable signal; a megachange re-runs huge swaths of the repo
@@ -351,6 +375,8 @@ this stack as real PRs #2–#5, with the monolith as the contrasting PR #1.)*
 | "Smaller is always better — split it as far as it goes" | Below the single-concern threshold it's worse: more changes means more review round-trips, CI runs, and rebases, plus a reviewer who must read the whole stack to understand change 1. Right-size, don't minimize. |
 | "It's a big change, so it should become many PRs" | A big change means *find the natural seams* — usually few. Line count is the symptom; concerns are the unit. One cohesive 400-line change beats five fragments that only make sense together. |
 | "Reviewers can follow a big change" | They LGTM it instead of reviewing it. Small, single-purpose changes get real scrutiny. |
+| "My commits are atomic, so one big PR is fine" | The reviewer opens the *whole diff*, not your commit list. Atomic commits aren't atomic reviews — split the reviewable unit into a stack. |
+| "Splitting just makes the reviewer wait on a chain" | The opposite: small changes hit the one-day-review bar and stack, so you keep moving. It's the megachange that stalls for days. |
 | "Our monorepo tooling handles big changes fine" | Tooling moves bytes; it doesn't make a 900-line diff reviewable or a wide presubmit cheap. Review quality and CI cost still scale with size. |
 | "Stacking adds review overhead" | Native stacking tools make a stack *cheaper* than re-reviewing one megachange every time it changes. The overhead is in the megachange. |
 | "I'll split it after it's approved" | Split *before* submitting. Splitting after approval is just unsquashing in reverse, with no review benefit. |
@@ -362,6 +388,8 @@ this stack as real PRs #2–#5, with the monolith as the contrasting PR #1.)*
 - A change title needs the word "and" to be accurate
 - A change doesn't build, or doesn't pass presubmit, without an unlanded sibling
 - One change mixes a refactor with a behavior change
+- One big PR justified by "the commits are clean" — tidy commits, but the reviewable diff is still huge
+- A change whose thesis can't be stated in one sentence without "and"
 - A change adds behavior but ships no test for it
 - A stack so deep the bottom never lands and the top rots (or the land queue never drains it)
 - A change with no independent motivation or test — it exists only as setup for the next one
@@ -394,3 +422,9 @@ Before submitting the stack, confirm for **every** change:
 - `code-review-and-quality` — what a reviewable change looks like from the reviewer's side
 - `planning-and-task-breakdown` — deciding the split at plan time, before code exists
 - `deprecation-and-migration` — the Large-Scale-Change / codemod playbook for repo-wide sweeps
+
+## Further Reading
+
+- Google Eng-Practices — **Small CLs**: <https://google.github.io/eng-practices/review/developer/small-cls.html> (the canonical "why and how small," including the ~100/1000-line guidance and separating refactors)
+- Google Eng-Practices — **Speed of Code Reviews**: <https://google.github.io/eng-practices/review/reviewer/speed.html> (the one-business-day standard and why review speed is a team-velocity lever)
+- The **"one diff, one thesis"** framing — each review should advance a single idea — and the case for stacked PRs over one big PR with atomic commits.
