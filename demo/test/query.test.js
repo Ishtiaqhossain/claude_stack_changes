@@ -40,3 +40,25 @@ test('filters combine', () => {
   assert.equal(r.groups[0].rows.length, 1);
   assert.equal(r.total.toNumber(), 10);
 });
+
+test('sorts by amount ascending and descending', () => {
+  const asc = applyQuery(tx, { sortBy: 'amount' }).groups[0].rows.map((t) => t.amount.toNumber());
+  assert.deepEqual(asc, [5, 10, 20]);
+  const desc = applyQuery(tx, { sortBy: 'amount', desc: true }).groups[0].rows.map((t) =>
+    t.amount.toNumber(),
+  );
+  assert.deepEqual(desc, [20, 10, 5]);
+});
+
+test('an unknown sort key throws', () => {
+  assert.throws(() => applyQuery(tx, { sortBy: 'nonsense' }), /Unknown sort key/);
+});
+
+test('groups by category with subtotals', () => {
+  const r = applyQuery(tx, { groupBy: 'category' });
+  assert.equal(r.grouped, true);
+  assert.equal(r.groups.length, 2);
+  const groceries = r.groups.find((g) => g.key === 'Groceries');
+  assert.equal(groceries.subtotal.toNumber(), 15);
+  assert.equal(r.total.toNumber(), 35);
+});

@@ -17,6 +17,11 @@ export class Money {
     return new Money(this.cents + other.cents);
   }
 
+  // Sort comparator helper: negative / zero / positive.
+  compareTo(other) {
+    return this.cents - other.cents;
+  }
+
   toNumber() {
     return this.cents / 100;
   }

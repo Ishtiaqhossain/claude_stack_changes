@@ -18,3 +18,9 @@ test('toString and toNumber', () => {
   assert.equal(Money.fromDollars(86.1).toString(), '$86.10');
   assert.equal(Money.fromDollars(86.1).toNumber(), 86.1);
 });
+
+test('compareTo orders amounts', () => {
+  assert.ok(Money.fromDollars(10).compareTo(Money.fromDollars(20)) < 0);
+  assert.ok(Money.fromDollars(20).compareTo(Money.fromDollars(10)) > 0);
+  assert.equal(Money.fromDollars(5).compareTo(Money.fromDollars(5)), 0);
+});

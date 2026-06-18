@@ -5,15 +5,22 @@ function sum(rows) {
   return rows.reduce((acc, t) => acc.plus(t.amount), Money.zero());
 }
 
+const COMPARATORS = {
+  date: (a, b) => a.date.localeCompare(b.date),
+  amount: (a, b) => a.amount.compareTo(b.amount),
+  category: (a, b) => a.category.localeCompare(b.category),
+  description: (a, b) => a.description.localeCompare(b.description),
+};
+
 // Turn a list of Transactions into a QueryResult that formatters render:
 //
 //   { groups: [ { key, rows, subtotal } ], total, grouped }
 //
-// Supports filtering by date range, category, and minimum amount. With no
-// filters this is the identity query (one group, all rows), so the default
+// Supports filtering, optional sorting, and optional grouping by category. With
+// no filters, no sort, and no groupBy this is the identity query, so the default
 // output is unchanged.
 export function applyQuery(transactions, options = {}) {
-  const { filters = {} } = options;
+  const { filters = {}, groupBy = null, sortBy = null, desc = false } = options;
 
   let rows = transactions;
   if (filters.from) rows = rows.filter((t) => t.date >= filters.from);
@@ -21,6 +28,27 @@ export function applyQuery(transactions, options = {}) {
   if (filters.category) rows = rows.filter((t) => t.category === filters.category);
   if (filters.minCents != null) rows = rows.filter((t) => t.amount.cents >= filters.minCents);
 
-  const groups = [{ key: null, rows, subtotal: sum(rows) }];
-  return { groups, total: sum(rows), grouped: false };
+  if (sortBy) {
+    const cmp = COMPARATORS[sortBy];
+    if (!cmp) throw new Error(`Unknown sort key: ${sortBy}`);
+    rows = [...rows].sort((a, b) => (desc ? -cmp(a, b) : cmp(a, b)));
+  }
+
+  let groups;
+  if (groupBy === 'category') {
+    const byKey = new Map();
+    for (const t of rows) {
+      if (!byKey.has(t.category)) byKey.set(t.category, []);
+      byKey.get(t.category).push(t);
+    }
+    groups = [...byKey.entries()].map(([key, groupRows]) => ({
+      key,
+      rows: groupRows,
+      subtotal: sum(groupRows),
+    }));
+  } else {
+    groups = [{ key: null, rows, subtotal: sum(rows) }];
+  }
+
+  return { groups, total: sum(rows), grouped: groupBy === 'category' };
 }

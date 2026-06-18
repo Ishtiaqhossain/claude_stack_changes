@@ -3,12 +3,12 @@ import { applyQuery } from './query.js';
 import { getFormatter } from './formatters/index.js';
 
 // Generate a report: convert raw rows -> Transactions, run the query pipeline
-// (filtering), then render with the chosen formatter.
+// (filter + sort + group), then render with the chosen formatter.
 //
-// options = { format = 'text', filters = {} }
+// options = { format = 'text', filters = {}, groupBy = null, sortBy = null, desc = false }
 export function generateReport(title, transactions, options = {}) {
-  const { format = 'text', filters = {} } = options;
-  const result = applyQuery(toTransactions(transactions), { filters });
+  const { format = 'text', filters = {}, groupBy = null, sortBy = null, desc = false } = options;
+  const result = applyQuery(toTransactions(transactions), { filters, groupBy, sortBy, desc });
   return getFormatter(format).format(title, result);
 }
 
