@@ -2,14 +2,11 @@ package com.example.reports
 
 data class Row(val label: String, val value: Int)
 
-// A Report holds rows and renders them. Today it only renders plain text.
+// A Report holds rows and renders them in a chosen format.
 class Report(val title: String, val rows: List<Row>) {
 
-    fun render(): String {
-        val lines = mutableListOf(title, "=".repeat(title.length))
-        for (row in rows) {
-            lines.add("${row.label}: ${row.value}")
-        }
-        return lines.joinToString("\n")
+    fun render(format: String = "text"): String {
+        val formatter: ReportFormatter = if (format == "csv") CsvFormatter() else TextFormatter()
+        return formatter.format(title, rows)
     }
 }
