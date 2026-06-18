@@ -1,20 +1,20 @@
 import { toTransactions } from './transaction.js';
-import { Money } from './money.js';
+import { applyQuery } from './query.js';
 
-// Builds a plain-text expense report. Rows are now typed Transactions and the
-// total is summed as Money (integer cents), so there is no floating-point drift.
-// The output is byte-for-byte identical to before — this is a pure refactor.
+// Builds a plain-text expense report. Rows now flow through the query pipeline
+// (applyQuery), which today returns the identity result, so the text output is
+// unchanged. This is a pure refactor that introduces the seam features hang off.
 export function renderReport(title, transactions) {
-  const rows = toTransactions(transactions);
+  const result = applyQuery(toTransactions(transactions));
   const lines = [title, '='.repeat(title.length)];
 
-  let total = Money.zero();
-  for (const t of rows) {
-    total = total.plus(t.amount);
-    lines.push(`${t.date}  ${t.category}  ${t.description}  ${t.amount.toString()}`);
+  for (const group of result.groups) {
+    for (const t of group.rows) {
+      lines.push(`${t.date}  ${t.category}  ${t.description}  ${t.amount.toString()}`);
+    }
   }
 
   lines.push('-'.repeat(title.length));
-  lines.push(`TOTAL  ${total.toString()}`);
+  lines.push(`TOTAL  ${result.total.toString()}`);
   return lines.join('\n');
 }
