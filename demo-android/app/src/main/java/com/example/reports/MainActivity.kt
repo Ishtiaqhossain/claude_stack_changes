@@ -1,7 +1,10 @@
 package com.example.reports
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 
 class MainActivity : Activity() {
@@ -17,8 +20,25 @@ class MainActivity : Activity() {
         val textView = TextView(this).apply {
             text = report.render()
             textSize = 18f
-            setPadding(48, 48, 48, 48)
         }
-        setContentView(textView)
+        val exportButton = Button(this).apply {
+            text = "Export as CSV"
+            setOnClickListener { shareCsv(report) }
+        }
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 48, 48, 48)
+            addView(textView)
+            addView(exportButton)
+        }
+        setContentView(layout)
+    }
+
+    private fun shareCsv(report: Report) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/csv"
+            putExtra(Intent.EXTRA_TEXT, report.render("csv"))
+        }
+        startActivity(Intent.createChooser(intent, "Export report"))
     }
 }

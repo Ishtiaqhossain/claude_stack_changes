@@ -21,19 +21,13 @@ class CsvFormatter : ReportFormatter {
     }
 }
 
-// Feature flag: CSV export stays off until it is wired into the UI (next change).
-object FeatureFlags {
-    var csvExportEnabled = false
-}
-
-// Registry mapping a format name to a formatter.
+// Registry mapping a format name to a formatter. CSV export is now wired into
+// the UI, so it is always available.
 object FormatterRegistry {
-    private val formatters = mutableMapOf<String, ReportFormatter>("text" to TextFormatter())
-
-    init {
-        // With the flag off, 'csv' is not registered and existing behavior is unchanged.
-        if (FeatureFlags.csvExportEnabled) formatters["csv"] = CsvFormatter()
-    }
+    private val formatters = mutableMapOf<String, ReportFormatter>(
+        "text" to TextFormatter(),
+        "csv" to CsvFormatter(),
+    )
 
     fun get(name: String): ReportFormatter =
         formatters[name] ?: throw IllegalArgumentException("Unknown format: $name")
