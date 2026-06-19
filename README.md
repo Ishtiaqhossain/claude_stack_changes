@@ -85,7 +85,10 @@ cp -r claude_stack_changes/stack-changes ~/.claude/skills/stack-changes
 **Verified, not asserted.** Every node of every demo stack is checked out and built + tested *on
 its own* — enforced in CI across both build systems via
 [`scripts/verify-stack.sh`](scripts/verify-stack.sh) (it runs the project's own command and reads
-the exit code, so it's build-system-agnostic). Evidence + checklist: [`VALIDATION.md`](VALIDATION.md).
+the exit code, so it's build-system-agnostic). The review-system detector is proven on a **12-case
+fixture matrix**, including adversarial cases — e.g. a GitHub repo carrying a stray Gerrit
+`Change-Id` must not be misread as Gerrit. Full **[validation methodology](VALIDATION.md)**: the
+"asserted → observed" framework, the evidence, and the checklist.
 
 ## What this is not
 
