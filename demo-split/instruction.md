@@ -56,15 +56,31 @@ index.js                        ->  parse, convert, format, suggest, list   ← 
 No **refactor-first** here: this is greenfield (nothing existing to reshape), so the split is a
 **dependency-ordered feature stack** — foundations at the bottom, the integrating CLI on top.
 
-### 3. Decomposition (6 single-thesis changes)
-| # | Thesis | Files | Deps |
-|---|--------|-------|------|
-| 1 | unit conversion core (units table + dimension-checked convert) | `units`, `convert`, +test, `package.json` | — |
-| 2 | result formatting (precision / significant figures) | `format`, +test | — (independent) |
-| 3 | expression parsing (single + batch) | `parse`, +test | — (independent) |
-| 4 | nearest-unit typo suggestions | `suggest`, +test | units |
-| 5 | list units by dimension | `list`, +test* | units |
-| 6 | command-line interface (flags, batch, friendly errors) | `index`, +cli test, `README` | all |
+### 3. The Split Plan (produced before any git)
+
+**Final goal:** add a multi-dimension unit-conversion CLI (length, mass, temperature, time,
+data, area, volume).
+
+**Concerns currently mixed together** (all *behavior* — this is greenfield, so no refactors):
+unit table + conversion · result formatting · expression parsing · typo suggestions · unit
+listing · CLI wiring.
+
+**Proposed stack:**
+
+| # | Title | Type | Depends on | Files | Test proof | Risk |
+|---|-------|------|------------|-------|------------|------|
+| 1 | feat: unit conversion core | feature | — | `units`, `convert`, +test, `package.json` | convert unit tests | low |
+| 2 | feat: result formatting | feature | — | `format`, +test | format unit tests | low |
+| 3 | feat: expression parsing | feature | — | `parse`, +test | parse unit tests | low |
+| 4 | feat: nearest-unit typo suggestions | feature | #1 | `suggest`, +test | suggest unit tests | low |
+| 5 | feat: list units by dimension | feature | #1 | `list`, +test\* | list unit tests | low |
+| 6 | feat: command-line interface | feature | all | `index`, +cli test, `README` | end-to-end CLI tests | med |
+
+**Parallelizable changes:** #2 and #3 (formatting, parsing) are independent of the core and of
+each other — they could base on trunk and review in parallel. #1 is the foundation; #4 and #5
+depend on it; #6 integrates everything.
+
+**Land order:** #1 → (#2, #3, #4, #5) → #6.
 
 \* `list.js` had no standalone test (only exercised via the CLI), so the skill **added**
 `test/list.test.js` so change 5 isn't a test-less fragment.

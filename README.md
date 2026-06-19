@@ -70,13 +70,17 @@ cp -r claude_split_changes/stack-changes ~/.claude/skills/stack-changes
 ```
 ## Split Plan
 ### Final goal
-<one sentence>
+<one sentence: what the whole change accomplishes>
 ### Concerns currently mixed together
-1. … (refactor)   2. … (feature)   …
+1. <concern> — refactor   2. <concern> — behavior   …
 ### Proposed stack
-| # | title | type | depends on | test proof |
+| # | Title | Type | Depends on | Files | Test proof | Risk |
+### Parallelizable changes
+<which changes are independent vs strictly stacked>
 ### Land order
 bottom-up: #1 → #2 → …
+### PR/diff/CL description template
+<per-change stack list + base + "depends on">
 ```
 
 Then it lands the stack with the right commands for your review system (GitHub, Sapling, Gerrit,
