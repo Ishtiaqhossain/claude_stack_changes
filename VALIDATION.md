@@ -9,7 +9,7 @@ expert review framework.
 | Item | Status | Evidence |
 |------|--------|----------|
 | Layer 1 — detector fixture matrix (incl. adversarial) passes in CI | ✅ | [`stack-changes/scripts/detect-review-system.test.sh`](stack-changes/scripts/detect-review-system.test.sh) — 12 cases; CI job `detector`. |
-| Layer 2 — decomposition rubric + scoped eval across 2+ build systems | ◑ | Rubric below; applied to the npm and Python stacks (both verified). Full 8–12-repo LLM corpus = ongoing work. |
+| Layer 2 — decomposition reasoning proven on an *independent* corpus | ◔ **open — weakest link** | Only **2** stacks, **both author-built** → tests the design, not generalization. Topological validity *is* observed (verify-stack green per node); independence + breadth are not. Rubric + corpus plan below. |
 | Layer 3 — per-revision build/test loop in the skill, demonstrated green on 2+ build systems | ✅ | Skill section "Verify the Stack"; [`scripts/verify-stack.sh`](scripts/verify-stack.sh); transcript below; CI job `verify-stack`. |
 | README install commands work as written | ✅ | Clone URL → HTTP 200; repo name `claude_stack_changes`; demo PRs #11–#19 resolve. |
 | Detector failure modes + no-script fallback documented | ✅ | `SKILL.md` → "Detecting Your Review System". |
@@ -40,16 +40,31 @@ ALL GREEN (8 nodes)
 Both are enforced in CI (job `verify-stack`) on every push, so a regression that breaks a node
 fails the build instead of slipping through.
 
-## Layer 2 — decomposition rubric
+## Layer 2 — decomposition reasoning (the weakest link, stated honestly)
 
-Grade each Split Plan against:
+The split *reasoning* is LLM-driven, so trust needs **breadth** and **independence**. Current
+evidence is weak: only **two** worked stacks (npm expense-report, Python report), and **both were
+authored by the skill's author**. That tests whether the design is internally consistent — not
+whether the reasoning generalizes to a stranger's repo. They risk *teaching to the test*. **Treat
+Layer 2 as not yet proven.**
 
-- [ ] Refactor-only changes are cleanly separated from behavior changes.
-- [ ] Dependency order is a valid topological sort — no change references code from a later one.
-- [ ] No over-splitting — every change is justifiable in one sentence without citing a later change.
-- [ ] The "Test proof" column names a real test at that revision, not a placeholder.
-- [ ] The detected review system matches the repo, and the mechanics shown are correct.
+### Scoring rubric (per Split Plan)
+| Criterion | How to check | Objective? |
+|-----------|--------------|------------|
+| Refactor/behavior cleanly separated | refactor nodes change no test files | yes (diff) |
+| **Valid topological order** | no node uses a symbol introduced later — proven when the node **builds + tests in isolation** | **yes** (`verify-stack.sh`) |
+| No over-splitting | each node's one-line motivation stands without citing a later node | judgment |
+| "Test proof" is real | the named test exists and runs at that revision | yes |
+| Review-system mechanics correct | detector label matches the repo; commands fit it | yes |
 
-Applied to the two worked stacks (npm expense-report, Python report) — both pass. Broadening to
-an 8–12-repo corpus across more languages (Go/Cargo/Gradle/Bazel/Django), run 3× each with
-per-repo pass rates, is tracked as future work.
+The load-bearing criterion is **topological validity**, and it is *objective*: `verify-stack.sh`
+green at every node **is** the proof (a node referencing later code can't build alone). The two
+existing stacks pass it — that part is observed. What's missing is **independence and breadth.**
+
+### Corpus plan — to close the gap (status: OPEN)
+Assemble **8–12 fat diffs the author did not build the skill around** — real changes pulled from
+public repos spanning build systems (Node, Go/Cargo, Python/Django, Java/Gradle or Bazel). For each:
+produce a Split Plan → run `verify-stack.sh` over it (objective topo check) → grade the rubric.
+Run **3× per repo** and record a per-repo pass rate. *Stable-and-reasonable* is the bar;
+*occasionally-wild* means the skill text needs tightening. This is an ongoing eval program, not a
+one-shot — and it is the single biggest remaining gap between "works here" and "works on your repo."

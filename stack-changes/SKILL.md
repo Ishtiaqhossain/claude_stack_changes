@@ -44,7 +44,8 @@ Run this top to bottom; the rest of the document is the reference for each step.
    [Detecting Your Review System](#detecting-your-review-system) instead of guessing.
 2. **Inspect local context** — the change shape, recent history + merge base, ownership/conventions,
    and build/test hints. See [Inspect Local Context](#inspect-local-context-before-you-plan).
-3. **Emit a [Split Plan](#the-split-plan-the-artifact-to-produce)** — the proposed stack, ordered refactor-first.
+3. **Emit a [Split Plan](#the-split-plan-the-artifact-to-produce)** — the proposed stack, ordered
+   refactor-first — and **persist it to `STACK_PLAN.md`** so a multi-session stack survives interruptions.
 4. **Confirm the plan with the user *before touching git.*** Revise until they agree on the shape.
 5. **Execute the mechanics** for the detected system ([Stacking in Your Review System](#stacking-in-your-review-system)).
    **Confirm before any history rewrite or force-push** (see the Safety note there).
@@ -247,6 +248,13 @@ Base: <branch>   Depends on: <#prev or none>   Do not land before: <…>
 
 Produce this first, get agreement on the *shape*, then execute the mechanics below. The plan is
 cheap to revise; a half-built stack of branches is not.
+
+**Persist it — one on-disk source of truth.** Write the plan to `STACK_PLAN.md` at the repo root
+(gitignore it; it's working state). For a deep stack worked across more than one session this is
+the anchor: on **resume**, read `STACK_PLAN.md`, re-run the
+[per-revision loop](#verify-the-stack-per-revision) to find the first unbuilt/red node, and
+continue from there — instead of re-deriving the plan from scratch and risking drift. Keep the
+file current as the plan changes (check off landed nodes).
 
 ## The Refactor-First Pattern
 
