@@ -22,21 +22,22 @@ Hand it a big, mixed change. It writes a plan and reshapes the work into an orde
 
 **Output** — a refactor-first stack (each step builds + tests by itself):
 
+<!-- BEGIN:flagship-demo (generated from the expense-report branches by validation/scripts/gen-readme.mjs — do not edit by hand) -->
 ```
-Before
-  main ──● one PR: refactor + export + filters + sorting + budgets + CLI   (1,019 lines, one "LGTM")
+Before — one change
+  main ──●  the whole feature in a single diff: +1,019 lines across 27 files, one "LGTM"
 
-After
-  main
-   └─ [1/8] refactor: typed model
-       └─ [2/8] refactor: query pipeline
-           └─ [3/8] refactor: formatter seam
-               └─ [4/8] feat: export formats
-                   └─ [5/8] feat: filtering
-                       └─ [6/8] feat: sorting + grouping
-                           └─ [7/8] feat: budgets
-                               └─ [8/8] feat: wire the CLI end-to-end
+After — a refactor-first stack (refactors first; each builds + tests on its own, lands bottom-up):
+   [1/8] refactor: introduce a Money/Transaction domain model
+   [2/8] refactor: route rendering through a query pipeline
+   [3/8] refactor: extract a Formatter interface + registry
+   [4/8] feat: add csv, json, html, markdown, table, and summary formatters
+   [5/8] feat: add filtering by date range, category, and minimum amount
+   [6/8] feat: add sorting and grouping by category with subtotals
+   [7/8] feat: add per-category budgets
+   [8/8] feat: wire up the CLI and enable the full feature end to end
 ```
+<!-- END:flagship-demo -->
 
 The three refactors land **first**, so each feature is a small, obvious diff.
 
@@ -103,8 +104,9 @@ cp -r claude_stack_changes/stack-changes ~/.claude/skills/stack-changes
 ## See it in action
 
 - **Before vs. after, as real PRs** — [`validation/demo/`](validation/demo/) (npm):
-  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is a 1,019-line
-  monolith; [#12–#19](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/12) is the
+  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith
+  (the whole feature in one diff — sized in the diagram above);
+  [#12–#19](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/12) is the
   refactor-first stack, each PR green on its own. Open #11, try to review it, then walk the stack
   (`cd validation/demo && npm test`).
 - **Break up a local commit, step by step** — [`validation/demo-split/instruction.md`](validation/demo-split/instruction.md):

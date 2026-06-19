@@ -68,3 +68,21 @@ jobs:
       # change, and verifies each node in isolation — independence + objective check.
       - name: yocto-queue — split a bundled change, verify each node
         run: bash validation/eval/corpus/yocto-queue.sh
+
+  readme-fresh:
+    name: README flagship block in sync with the demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # need main + monolith/expense-report + expense-stack/* history
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: fetch demo branches
+        run: git fetch --quiet origin '+refs/heads/*:refs/remotes/origin/*'
+      - name: regenerate the flagship block and assert no drift
+        run: |
+          node validation/scripts/gen-readme.mjs
+          git diff --exit-code README.md \
+            || { echo '::error::README flagship-demo block is stale — run `node validation/scripts/gen-readme.mjs` and commit.'; exit 1; }
