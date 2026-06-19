@@ -5,8 +5,10 @@
 # Prints exactly one of:
 #   sapling | gerrit | phabricator | github-stacked | git-local | github-plain | unknown
 # Exit code:
-#   0  commit-per-change available (sapling/gerrit/phabricator/github-stacked/git-local)
-#   1  branch-per-PR only (github-plain — GitHub PRs or GitLab/Bitbucket MRs)
+#   0  commit-per-change available (sapling/gerrit/phabricator/github-stacked, or
+#      git-local = a repo with no remote yet, where the commit stack is local)
+#   1  branch-per-PR only (github-plain — any remote we can't classify as commit-per-change:
+#      GitHub.com / GitHub Enterprise, GitLab/Bitbucket cloud-or-self-hosted, Gitea, …)
 #   2  unknown / not a git or Sapling repo
 set -uo pipefail
 
@@ -42,17 +44,16 @@ detect() {
      || [ -f .spr.yml ] || [ -f .spr.yaml ]; then
     echo github-stacked; return
   fi
-  # Plain branch-per-PR host — GitHub PRs, or GitLab/Bitbucket merge requests. No
-  # commit-per-change; you manage one branch + PR/MR per change. (`github-plain` names
-  # this mechanics bucket, not a claim that the host is GitHub.)
-  if git remote -v 2>/dev/null | grep -qiE 'github\.com|gitlab\.com|bitbucket\.org'; then
+  # Any configured remote we did NOT classify above as commit-per-change is a branch-per-PR
+  # host: GitHub.com or GitHub Enterprise (custom domain), GitLab/Bitbucket (cloud or
+  # self-hosted), Gitea, etc. You manage one branch + PR/MR per change. (`github-plain` names
+  # this mechanics bucket — it is not a claim that the host is github.com.)
+  if git remote -v 2>/dev/null | grep -q .; then
     echo github-plain; return
   fi
-  # Local git repo with no recognized remote yet (or a self-hosted host we can't
-  # classify — e.g. self-hosted GitLab/Gitea) — you still have a local commit stack to
-  # reshape (rebase/reset) and submit later. Commit-per-change locally; the remote's
-  # mechanics get chosen when you push. If it's a self-hosted MR host, treat it as
-  # branch-per-PR (use the plain-branch mechanics).
+  # A git repo with NO remote configured yet — you have a local commit stack to reshape
+  # (rebase/reset) and submit later (commit-per-change locally); the host's mechanics get
+  # chosen when you add a remote and push.
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo git-local; return
   fi

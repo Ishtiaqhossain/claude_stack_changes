@@ -139,7 +139,7 @@ Never mix them in one change. A reviewer reading a mixed change can't tell which
 "safe restructuring" and which lines actually change what the system does — so they have to
 treat all of it as risky. Split, and each half becomes easy:
 
-- The refactor change: "tests are identical and still green → behavior is preserved."
+- The refactor change: "assertions unchanged and still green → behavior is preserved."
 - The feature change: a small diff against already-prepared code → the new behavior is the whole story.
 
 **Split by thesis, not by layer.** "PR1: models, PR2: utils, PR3: tests, PR4: wire it up" is the
@@ -185,7 +185,11 @@ produces a plausible-but-wrong plan. Run only the commands that apply (skip what
    ```sh
    git log --oneline -n 10
    git branch --show-current
-   git merge-base HEAD origin/main                 # trunk merge base = the stack's base
+   # Trunk = the remote's default branch — DON'T assume `main` (could be master/develop/trunk,
+   # or a non-`origin` remote). Resolve it, then take the merge base = the stack's base:
+   trunk=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null) # e.g. origin/main
+   trunk=${trunk:-origin/main}                     # fallback; `git remote set-head origin -a` populates it
+   git merge-base HEAD "$trunk"
    ```
 3. **Review system** — run [`scripts/detect-review-system.sh`](scripts/detect-review-system.sh)
    (or the [fallback questions](#detecting-your-review-system)).
@@ -296,7 +300,7 @@ classifies the current repo and tells you which path below to use:
 | `phabricator` | **Phabricator** | native |
 | `github-stacked` | **GitHub + stacking tool** | via tooling (branch-per-PR underneath) |
 | `git-local` | **local commits, no remote yet** | yes — locally, until you push |
-| `github-plain` | **Plain branch-per-PR** (GitHub PRs, GitLab/Bitbucket MRs) | no — branch-per-PR only |
+| `github-plain` | **Plain branch-per-PR** — any remote we can't classify (GitHub/GHE, GitLab/Bitbucket, self-hosted) | no — branch-per-PR only |
 
 It exits `0` when commit-per-change is available, `1` for branch-per-PR (`github-plain`), and `2`
 for an unknown / non-repo dir. Its full fixture matrix — every row above plus adversarial cases —
@@ -312,10 +316,12 @@ Known failure modes:
 - **Graphite needs its config** — it looks for `.git/.graphite_repo_config`; a Graphite user who
   hasn't `gt init`-ed degrades to `github-plain` (a fixture documents this). If you use `gt`,
   treat it as `github-stacked`.
-- **GitLab / Bitbucket** remotes now route to `github-plain` — they're MR-based branch-per-PR, so
-  the plain-branch mechanics apply. **Self-hosted** MR hosts (self-hosted GitLab, Gitea, …) we can't
-  fingerprint still fall through to `git-local`; treat them as branch-per-PR too, not as a
-  commit-per-change system.
+- **Any unclassified remote → `github-plain`.** GitLab/Bitbucket (cloud or self-hosted),
+  **GitHub Enterprise on a custom domain** (`github.acme.com`, `git.acme.com` — we can't fingerprint
+  these from the URL), Gitea, etc. all route to `github-plain` (branch-per-PR), *not* `git-local`.
+  `git-local` (exit 0, commit-per-change) now means **no remote configured yet** — a true local
+  commit stack. If the detector is wrong about a custom host's exact tool, the mechanics are still
+  branch-per-PR; only the CLI differs (`glab`/web instead of `gh`).
 
 **If you can't run the script**, don't guess — ask the user three questions:
 1. Where do code reviews happen — GitHub PRs, Phabricator/Sapling diffs, Gerrit CLs, or just
@@ -485,9 +491,13 @@ code. That portability is the whole point.
    code introduced by a later one, or a "refactor" actually changed behavior. **Report which node
    failed and why; do not present an unverified stack as done.** Fix the decomposition, re-verify.
 
-A **refactor** change has a sharper check: build + test green **and** its test files are
-*unchanged* from the parent (`git diff <parent> -- <test paths>` is empty) — that empty diff is
-the proof it preserved behavior.
+A **refactor** change has a sharper check: build + test green **and** the test *assertions and
+expected outputs* are unchanged from the parent. **Byte-identical test files** (`git diff <parent>
+-- <test paths>` is empty) is the *strongest* form of that proof — but it's sufficient, not
+necessary. A legitimate pure refactor can still touch test files *mechanically*: a rename updates
+call sites, a file move updates import paths. So the real invariant is "no asserted value or
+expected output changed"; when a refactor must edit tests, confirm the diff is purely mechanical
+(names/paths), with every assertion intact.
 
 > When done, restore the user's working state (`git checkout -` / their branch) — don't leave
 > them on a detached revision. And per the Safety note, confirm before any rebase/force-push.
@@ -499,7 +509,7 @@ Before submitting, confirm every change passes the
 sentence, understandable / buildable / testable / revertable alone, not a fragment) — and, at the
 stack level:
 
-- [ ] No change mixes a refactor with a behavior change; refactor changes leave existing tests unchanged and passing
+- [ ] No change mixes a refactor with a behavior change; refactor changes leave the test **assertions / expected outputs** unchanged and passing (mechanical edits — renames, import paths — are fine)
 - [ ] It passes presubmit/CI independently, at its position in the stack
 - [ ] Title states stack position `[n/total]` and any prerequisite `(needs …)`
 - [ ] Description lists the full stack order and base

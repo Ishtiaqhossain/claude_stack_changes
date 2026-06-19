@@ -39,6 +39,8 @@ run_case "gerrit (commit-msg hook)"      gerrit         0 'mkdir -p .git/hooks; 
 run_case "phabricator (.arcconfig)"      phabricator    0 'touch .arcconfig'
 run_case "graphite (.graphite cfg)"      github-stacked 0 'touch .git/.graphite_repo_config'
 run_case "spr/ghstack (git config)"      github-stacked 0 'git config spr.branchPrefix x'
+run_case "ghstack (git config)"          github-stacked 0 'git config ghstack.remote origin'
+run_case "spr (.spr.yml file)"           github-stacked 0 'touch .spr.yml'
 run_case "plain github"                  github-plain   1 "git remote add origin $GH"
 run_case "git-local (no remote)"         git-local      0 'commit c1'
 run_case "not a repo (empty dir)"        unknown        2 'rm -rf .git'
@@ -60,6 +62,24 @@ run_case "bitbucket remote"              github-plain   1 "git remote add origin
 run_case "gitlab + stray Change-Id"      github-plain   1 "git remote add origin https://gitlab.com/acme/app.git; commit 'x
 
 Change-Id: Iabc'"
+# GitHub Enterprise / self-hosted on a custom domain: an unclassified remote is
+# branch-per-PR, NOT a local-only stack (the exit-code-contract fix — exit 1, not 0).
+run_case "GHE custom-domain remote"      github-plain   1 "git remote add origin https://github.acme.com/team/app.git"
+run_case "self-hosted (git.acme.com)"    github-plain   1 "git remote add origin git@git.acme.com:team/app.git"
+
+# cd-to-root: the script must classify from a SUBDIRECTORY, not only the repo root.
+sub="$(mktemp -d)"
+(
+  cd "$sub" || exit 99
+  git init -q; git remote add origin "$GH"; mkdir -p a/b; cd a/b
+  out="$("$SCRIPT" 2>/dev/null)"; code=$?
+  if [ "$out" = github-plain ] && [ "$code" = 1 ]; then
+    echo "ok   - runs from a subdirectory ($out, exit $code)"
+  else
+    echo "FAIL - subdirectory: want github-plain/1, got $out/$code"; exit 1
+  fi
+) || results=1
+rm -rf "$sub"
 
 if [ "$results" -eq 0 ]; then echo "ALL PASS"; else echo "SOME FAILED"; fi
 exit "$results"
