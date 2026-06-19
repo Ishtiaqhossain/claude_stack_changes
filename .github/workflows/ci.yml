@@ -45,13 +45,14 @@ jobs:
         run: |
           # Copy the verifier out of the work tree so branch checkouts can't remove it mid-run.
           cp validation/scripts/verify-stack.sh "$RUNNER_TEMP/vs.sh"
-          # NOTE: these stack branches/tags predate the validation/ reorg, so on them the
-          # demos still live at the repo root — keep `cd demo` / `cd demo-py` below.
+          # NOTE: the demo stack branches are based on the demo's own base, so the demo
+          # lives at the repo root on them — keep `cd demo` / `cd demo-py` below.
+          # Discover the expense-stack/* branches dynamically so a demo regen (which can
+          # change the node count/names) never leaves this list stale.
           echo "== npm stack (demo/) =="
-          bash "$RUNNER_TEMP/vs.sh" "cd demo && npm run build && npm test" \
-            expense-stack/1-model expense-stack/2-query-pipeline expense-stack/3-formatter-seam \
-            expense-stack/4-formatters expense-stack/5-filtering expense-stack/6-sort-group \
-            expense-stack/7-budgets expense-stack/8-cli
+          npm_stack=$(git for-each-ref --format='%(refname:short)' --sort=refname \
+            'refs/remotes/origin/expense-stack/*' | sed 's#^origin/##')
+          bash "$RUNNER_TEMP/vs.sh" "cd demo && npm run build && npm test" $npm_stack
           echo "== python stack (demo-py/) =="
           bash "$RUNNER_TEMP/vs.sh" "cd demo-py && python3 -m py_compile *.py && python3 -m unittest" \
             py-0 py-1 py-2 py-3
