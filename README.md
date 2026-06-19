@@ -101,7 +101,7 @@ cp -r claude_stack_changes/stack-changes ~/.claude/skills/stack-changes
 
 - **Before vs. after, as real PRs** — [`validation/demo/`](validation/demo/) (npm):
   <!-- BEGIN:flagship-prs (updated by validation/scripts/regen-demo.sh finish — do not edit by hand) -->
-  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith (the whole feature in one diff — sized in the diagram above); [#12–#19](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/12) is the refactor-first stack.
+  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith (the whole feature in one diff — sized in the diagram above); [#20–#27](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/20) is the refactor-first stack.
   <!-- END:flagship-prs -->
   Each PR is green on its own — open the monolith, try to review it, then walk the stack
   (`cd validation/demo && npm test`).
