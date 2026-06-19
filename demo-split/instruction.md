@@ -1,6 +1,6 @@
-# Demo: breaking up a large commit with `split-changes`
+# Demo: breaking up a large commit with `stack-changes`
 
-A worked demonstration of the [`split-changes`](../split-changes/SKILL.md) skill applied to a
+A worked demonstration of the [`stack-changes`](../stack-changes/SKILL.md) skill applied to a
 real, large, multi-concern **local commit** — carving it into a stack of small, single-thesis
 commits that each build and test on their own.
 
@@ -12,8 +12,8 @@ files**, deliberately authored as one commit.
 
 ## Run it yourself locally
 
-You need Node 18+ and the skill installed at `~/.claude/skills/split-changes/`
-(`cp -r split-changes ~/.claude/skills/`).
+You need Node 18+ and the skill installed at `~/.claude/skills/stack-changes/`
+(`cp -r stack-changes ~/.claude/skills/`).
 
 ```bash
 # 1. Start a branch and land the large change as ONE big commit.
@@ -26,7 +26,7 @@ git commit -m "Add unit-convert CLI (one large, multi-concern commit)"
 
 # 3. In Claude Code, invoke the skill against that commit:
 #
-#       /split-changes break up the unit-convert commit on this branch
+#       /stack-changes break up the unit-convert commit on this branch
 #
 # The skill detects your review system, finds the natural seams, and reshapes the
 # single commit into a stack of single-thesis commits via `git reset` + re-commit —
@@ -38,11 +38,11 @@ git commit -m "Add unit-convert CLI (one large, multi-concern commit)"
 
 ---
 
-## Captured output — invoking `/split-changes`
+## Captured output — invoking `/stack-changes`
 
 ### 1. Detect the review system
 ```
-$ bash split-changes/scripts/detect-review-system.sh
+$ bash stack-changes/scripts/detect-review-system.sh
 github-plain        # branch-per-PR — but the commit is local & unpushed,
                     # so reshape it into a local commit stack now; bind to PRs at push.
 ```

@@ -2,7 +2,7 @@
 
 A small command-line unit converter across seven dimensions — **length, mass, temperature,
 time, data, area, volume** — used here as a deliberately *large, multi-concern* change to
-practice the [`split-changes`](../split-changes/SKILL.md) skill.
+practice the [`stack-changes`](../../stack-changes/SKILL.md) skill.
 
 ## Usage
 
@@ -31,5 +31,5 @@ src/list.js      units grouped by dimension
 src/index.js     CLI: flags, batch, error handling
 ```
 
-This all landed in **one commit** — exactly the kind of change `split-changes` carves into a
+This all landed in **one commit** — exactly the kind of change `stack-changes` carves into a
 refactor-first stack of single-thesis pieces.

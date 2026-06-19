@@ -1,7 +1,7 @@
 {
   "name": "expense-report",
   "version": "1.0.0",
-  "description": "Sample project for the split-changes skill — a large feature landed as a refactor-first stack",
+  "description": "Sample project for the stack-changes skill — a large feature landed as a refactor-first stack",
   "type": "module",
   "scripts": {
     "build": "node --check src/index.js && node src/index.js > /dev/null && echo build ok",

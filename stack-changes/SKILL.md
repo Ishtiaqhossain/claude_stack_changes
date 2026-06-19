@@ -1,5 +1,5 @@
 ---
-name: split-changes
+name: stack-changes
 description: Splits a large change into small, single-purpose units of review — PRs, diffs, or CLs — each making one argument (one diff, one thesis) and each buildable and testable on its own. Use when a change is too big to review, when a feature builds on existing code, when working in a large monorepo with stacked diffs, or when you need to land dependent changes and make the ordering clear. Triggers on "split this PR/diff/CL", "break up this change", "stack these", "one diff one thesis".
 ---
 

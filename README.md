@@ -1,4 +1,4 @@
-# Split Changes
+# Stack Changes
 
 **One diff, one thesis** — a Claude Code skill that teaches coding agents to land changes like a
 **senior engineer**: small, reviewable, **stacked**, **buildable**, **testable**, and
@@ -8,7 +8,7 @@
 > of single-thesis PRs/diffs/CLs — the way review actually scales: review latency, CI cost,
 > ownership boundaries, rollback, trunk-based development, and reviewer empathy.
 
-The skill lives in **[`split-changes/SKILL.md`](split-changes/SKILL.md)**.
+The skill lives in **[`stack-changes/SKILL.md`](stack-changes/SKILL.md)**.
 
 ## In a nutshell
 
@@ -33,7 +33,7 @@ The three refactors land **first**, so each feature is a small diff. *(This is e
 
 ## The skill
 
-[`split-changes/SKILL.md`](split-changes/SKILL.md) takes a large
+[`stack-changes/SKILL.md`](stack-changes/SKILL.md) takes a large
 change and carves it into a stack of small, single-thesis units of review. Highlights:
 
 - **One diff, one thesis.** A change is an argument with one topic sentence; the reviewer
@@ -45,16 +45,16 @@ change and carves it into a stack of small, single-thesis units of review. Highl
   *reviewable unit* into a **stack** — a clean commit history inside one big PR isn't enough.
 - **Tool-agnostic.** Neutral terms (a "change") with mappings for GitHub PRs, Sapling/
   Phabricator diffs, and Gerrit CLs — plus the native stacking workflow for each. A bundled
-  [`detect-review-system.sh`](split-changes/scripts/detect-review-system.sh)
+  [`detect-review-system.sh`](stack-changes/scripts/detect-review-system.sh)
   classifies the repo and routes to the right mechanics.
 - **Built for scale.** Ownership-aligned splits, presubmit economics, feature-gating over long
   branches, right-sizing (don't over-split), and Google's small-CL / review-speed guidance.
 
 ## Stack it — copy-paste recipes
 
-Once you have the [Split Plan](split-changes/SKILL.md#the-split-plan-the-artifact-to-produce),
+Once you have the [Split Plan](stack-changes/SKILL.md#the-split-plan-the-artifact-to-produce),
 land it. Pick the recipe for your review system (run
-[`detect-review-system.sh`](split-changes/scripts/detect-review-system.sh) if unsure):
+[`detect-review-system.sh`](stack-changes/scripts/detect-review-system.sh) if unsure):
 
 **GitHub + a stacking tool (Graphite):**
 ```sh
@@ -80,7 +80,7 @@ git add <files for change 1> && git commit -m "[1/4] refactor: …"   # repeat p
 ```
 
 Sapling, Phabricator, and Gerrit recipes are in
-[the skill](split-changes/SKILL.md#stacking-in-your-review-system).
+[the skill](stack-changes/SKILL.md#stacking-in-your-review-system).
 
 ## The example: `demo/` — an expense-report tool
 
@@ -128,14 +128,14 @@ then do the features land, each a small diff against the prepared seams.
 a 390-line multi-concern `unit-convert` change landed as **one local commit**, then carved into
 a stack of six single-thesis commits by invoking the skill. It includes step-by-step
 instructions to **run the demo yourself locally** and the **captured output** of invoking
-`/split-changes` (review-system detection, the seam map, the resulting stack, and per-commit
+`/stack-changes` (review-system detection, the seam map, the resulting stack, and per-commit
 isolation tests). The large change to start from is in [`demo-split/unit-convert/`](demo-split/unit-convert/).
 
 ## Repository layout
 
 ```
-split-changes/SKILL.md     the skill
+stack-changes/SKILL.md     the skill
 demo/                      the expense-report example (monolith vs 8-PR stack)
 demo-split/                local break-up walkthrough (large commit -> 6-commit stack)
-demo-split/instruction.md  how to run it + captured /split-changes output
+demo-split/instruction.md  how to run it + captured /stack-changes output
 ```
