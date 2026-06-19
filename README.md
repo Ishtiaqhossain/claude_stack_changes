@@ -8,10 +8,6 @@ A Claude Code skill that breaks a large change into a **stack of small, single-t
 > 🧭 **New here or feeling lost?** [`MAP.md`](MAP.md) explains every folder in one line — the
 > short version: to use the skill you only need `stack-changes/`; everything else just proves it works.
 
-[![CI](https://github.com/Ishtiaqhossain/claude_stack_changes/actions/workflows/ci.yml/badge.svg)](https://github.com/Ishtiaqhossain/claude_stack_changes/actions/workflows/ci.yml)
-
-![Claude Code surveying a 1,000-line PR, choosing a seam, and producing a refactor-first Split Plan](assets/split-plan.v4.svg)
-
 ## What it does
 
 Hand it a big, mixed change. It writes a plan and reshapes the work into an ordered stack where
