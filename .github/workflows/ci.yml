@@ -64,8 +64,9 @@ jobs:
       fail-fast: false   # one ecosystem failing shouldn't hide the others
       matrix:
         include:
-          - { entry: 'yocto-queue (node)',    toolchain: node,   script: validation/eval/corpus/yocto-queue.sh }
+          - { entry: 'yocto-queue (node)',      toolchain: node,   script: validation/eval/corpus/yocto-queue.sh }
           - { entry: 'more-itertools (python)', toolchain: python, script: validation/eval/corpus/more-itertools.sh }
+          - { entry: 'google/uuid (go)',        toolchain: go,     script: validation/eval/corpus/google-uuid.sh }
     steps:
       - uses: actions/checkout@v4
       # Each entry clones a real external repo the author didn't build, splits a
@@ -80,6 +81,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - if: matrix.toolchain == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
       - name: split a bundled change, verify each node
         run: bash ${{ matrix.script }}
 
