@@ -42,7 +42,8 @@ Run this top to bottom; the rest of the document is the reference for each step.
 1. **Detect the review system** — run [`scripts/detect-review-system.sh`](scripts/detect-review-system.sh).
    If you can't run it (no shell / sandbox / permissions), ask the fallback questions in
    [Detecting Your Review System](#detecting-your-review-system) instead of guessing.
-2. **Map the end state** — `git diff` / `git show` the change; list every file and *why* it's touched.
+2. **Inspect local context** — the change shape, recent history + merge base, ownership/conventions,
+   and build/test hints. See [Inspect Local Context](#inspect-local-context-before-you-plan).
 3. **Emit a [Split Plan](#the-split-plan-the-artifact-to-produce)** — the proposed stack, ordered refactor-first.
 4. **Confirm the plan with the user *before touching git.*** Revise until they agree on the shape.
 5. **Execute the mechanics** for the detected system ([Stacking in Your Review System](#stacking-in-your-review-system)).
@@ -178,6 +179,37 @@ split:
 
 See `git-workflow-and-versioning` for sizing heuristics and atomic-commit discipline within
 each change.
+
+## Inspect Local Context (before you plan)
+
+A Split Plan is only as good as what you know about the repo. **Gather this first** — guessing
+produces a plausible-but-wrong plan. Run only the commands that apply (skip what isn't present).
+
+1. **Current change shape** — what you're actually splitting:
+   ```sh
+   git status --short
+   git diff --stat ; git diff --name-only        # unstaged
+   git diff --cached --stat                        # staged, if any
+   ```
+2. **Recent history & base** — where the stack roots and what's idiomatic here:
+   ```sh
+   git log --oneline -n 10
+   git branch --show-current
+   git merge-base HEAD origin/main                 # trunk merge base = the stack's base
+   ```
+3. **Review system** — run [`scripts/detect-review-system.sh`](scripts/detect-review-system.sh)
+   (or the [fallback questions](#detecting-your-review-system)).
+4. **Ownership & conventions** — read if present: `CODEOWNERS` / `OWNERS` (split along owner
+   boundaries), `.github/pull_request_template.md` (match the PR body), `CONTRIBUTING.md`,
+   `CLAUDE.md` (house rules, commit/PR conventions).
+5. **Build/test hints** — so each change's *Test proof* is real, not aspirational. Inspect the
+   manifest(s) — `package.json`, `pnpm-lock.yaml`, `pom.xml`, `build.gradle`, `Cargo.toml`,
+   `go.mod`, `pyproject.toml`, `BUCK` / `BUILD`, etc. — and identify the test command (and, if you
+   can, the affected targets) for each proposed change.
+
+**Feed it into the plan:** change shape → the proposed stack · merge base → the **Base** ·
+`CODEOWNERS`/`OWNERS` → how you carve and order · manifests → the **Test proof** column ·
+conventions/template → the description template.
 
 ## The Split Plan (the artifact to produce)
 
