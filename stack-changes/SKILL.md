@@ -52,16 +52,9 @@ Run this top to bottom; the rest of the document is the reference for each step.
 
 ## A Note on Terminology
 
-The unit of review has different names in different systems. This skill says **"change."**
-
-| This skill | GitHub | Phabricator / Sapling | Critique (Google) | Gerrit |
-|---|---|---|---|---|
-| a **change** | Pull Request (PR) | Diff (`Dxxxxx`) | Changelist (CL) | Change |
-| a **stack** | stacked PRs | diff stack | dependent CLs | relation chain |
-| **land** it | merge | land | submit | submit |
-
-Everything below applies in any of these. Where mechanics differ, see
-[Stacking in your review system](#stacking-in-your-review-system).
+This skill says **"change"** for the unit of review — a **PR** (GitHub), **diff**
+(Phabricator/Sapling), or **CL** (Critique/Gerrit); a **stack** is the dependent series. Full
+mapping table: [`reference/terminology.md`](reference/terminology.md).
 
 ## When to Use
 
@@ -469,32 +462,10 @@ of fifty changes.
 
 ## At Scale
 
-The practices that make this work in a large org:
-
-- **Small-change culture.** Google's publicly documented code-review guidance is explicit that
-  *small CLs* are reviewed **faster** and **more thoroughly**, have **fewer bugs**, waste less
-  effort when rejected, **merge** more cleanly, are **easier to roll back**, and **don't block**
-  the author (who can stack the next change while this one is in review). The flip side is review
-  *speed*: slow reviews are the top source of developer frustration, and Google's standard is a
-  **one-business-day** maximum to respond — a bar small changes make easy to hit and large ones
-  make impossible. Make "small and single-thesis" the default, not the exception; review
-  velocity compounds.
-- **Presubmit economics.** Every change must pass presubmit on its own. A small affected-target
-  set means cheap, fast, parallelizable signal; a megachange re-runs huge swaths of the repo
-  and ties up CI for everyone. Splitting isn't just kindness to reviewers — it's cheaper CI.
-- **Ownership-aligned splits.** Fewer owners per change → fewer approvals to gather → faster
-  landing. Split along OWNERS/CODEOWNERS lines deliberately.
-- **Feature gating over long branches.** Land incomplete stacks to trunk behind flags rather
-  than parking work on a branch that diverges for weeks. Trunk stays releasable; integration
-  risk stays near zero.
-- **Land/merge queues.** Stacks land bottom-up through the queue. Keep stacks **shallow** —
-  a ten-deep stack means the top can't land until nine others clear, and a single flake at the
-  bottom stalls everything above it.
-- **When it's actually a Large-Scale Change (LSC).** If a "refactor" mechanically sweeps
-  thousands of files (rename an API across the monorepo), that is *not* a hand-built stack.
-  It's the LSC playbook: a **codemod** plus many small, auto-generated, individually-owned
-  changes (e.g. tools like Rosie / codemods / `arc`-style sweeps). Don't hand-split 5,000
-  files — generate them. See `deprecation-and-migration`.
+Splitting is load-bearing in a large org: small-change culture (Google's small-CL guidance),
+presubmit economics, ownership-aligned splits, feature-gating over long branches, shallow stacks
+for land queues, and the **LSC/codemod escape hatch** for repo-wide sweeps (don't hand-split a
+3,000-file rename — generate it). Full notes: [`reference/at-scale.md`](reference/at-scale.md).
 
 ## Worked Example
 
@@ -516,19 +487,9 @@ refactor-first stack, **#12–#19**.)*
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
-|---|---|
-| "It's all one feature — splitting is artificial" | The feature is one thing; the refactor that *enables* it is another. Ship them as separate changes. |
-| "Smaller is always better — split it as far as it goes" | Below the single-concern threshold it's worse: more changes means more review round-trips, CI runs, and rebases, plus a reviewer who must read the whole stack to understand change 1. Right-size, don't minimize. |
-| "It's a big change, so it should become many PRs" | A big change means *find the natural seams* — usually few. Line count is the symptom; concerns are the unit. One cohesive 400-line change beats five fragments that only make sense together. |
-| "Reviewers can follow a big change" | They LGTM it instead of reviewing it. Small, single-purpose changes get real scrutiny. |
-| "My commits are atomic, so one big PR is fine" | The reviewer opens the *whole diff*, not your commit list. Atomic commits aren't atomic reviews — split the reviewable unit into a stack. |
-| "Splitting just makes the reviewer wait on a chain" | The opposite: small changes hit the one-day-review bar and stack, so you keep moving. It's the megachange that stalls for days. |
-| "Our monorepo tooling handles big changes fine" | Tooling moves bytes; it doesn't make a 900-line diff reviewable or a wide presubmit cheap. Review quality and CI cost still scale with size. |
-| "Stacking adds review overhead" | Native stacking tools make a stack *cheaper* than re-reviewing one megachange every time it changes. The overhead is in the megachange. |
-| "I'll split it after it's approved" | Split *before* submitting. Splitting after approval is just unsquashing in reverse, with no review benefit. |
-| "The refactor is small enough to include with the feature" | Then it's small enough to be its own quick change. Mixed refactor+feature makes both harder to verify. |
-| "It's a 3,000-file rename, splitting is hopeless" | That's an LSC: codemod + auto-generated small changes, not a hand-built stack. |
+Rebuttals to "it's fine as one big change," "smaller is always better," "atomic commits = atomic
+review," "I'll split after approval," and the rest:
+[`reference/rationalizations.md`](reference/rationalizations.md).
 
 ## Red Flags
 
@@ -572,6 +533,5 @@ Before submitting the stack, confirm for **every** change:
 
 ## Further Reading
 
-- Google Eng-Practices — **Small CLs**: <https://google.github.io/eng-practices/review/developer/small-cls.html> (the canonical "why and how small," including the ~100/1000-line guidance and separating refactors)
-- Google Eng-Practices — **Speed of Code Reviews**: <https://google.github.io/eng-practices/review/reviewer/speed.html> (the one-business-day standard and why review speed is a team-velocity lever)
-- The **"one diff, one thesis"** framing — each review should advance a single idea — and the case for stacked PRs over one big PR with atomic commits.
+Google's **Small CLs** and **Speed of Code Reviews** guidance, plus the "one diff, one thesis"
+framing: [`reference/further-reading.md`](reference/further-reading.md).
