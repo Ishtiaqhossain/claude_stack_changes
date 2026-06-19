@@ -5,6 +5,8 @@ A Claude Code skill that breaks a large change into a **stack of small, single-t
 
 > **One diff, one thesis.** Land changes like a senior engineer.
 
+![Claude Code producing a Split Plan from a 1,000-line PR](assets/split-plan.svg)
+
 ## What it does
 
 Hand it a big, mixed change. It writes a plan and reshapes the work into an ordered stack where
@@ -32,20 +34,6 @@ After
 ```
 
 The three refactors land **first**, so each feature is a small, obvious diff.
-
-## Who this is for
-
-**Use it when:**
-- A reviewer said your PR is "too big."
-- You're about to make a risky change and want a safe, staged landing plan.
-- Your change mixes refactoring, feature work, tests, and CLI/UI wiring.
-- You work in a monorepo or across multiple code owners.
-- You want help splitting work *before* it goes to review.
-
-**Skip it when:**
-- The change is already small and atomic.
-- You just want a generic code review or bug hunt.
-- It's a mechanical, repo-wide codemod (that's a different playbook).
 
 ## Quick start
 
@@ -86,6 +74,20 @@ bottom-up: #1 → #2 → …
 Then it lands the stack with the right commands for your review system (GitHub, Sapling, Gerrit,
 or local commits with no remote yet). Full method, per-tool recipes, and the plan template are in
 **[`stack-changes/SKILL.md`](stack-changes/SKILL.md)**.
+
+## Who this is for
+
+**Use it when:**
+- A reviewer said your PR is "too big."
+- You're about to make a risky change and want a safe, staged landing plan.
+- Your change mixes refactoring, feature work, tests, and CLI/UI wiring.
+- You work in a monorepo or across multiple code owners.
+- You want help splitting work *before* it goes to review.
+
+**Skip it when:**
+- The change is already small and atomic.
+- You just want a generic code review or bug hunt.
+- It's a mechanical, repo-wide codemod (that's a different playbook).
 
 ## See it in action
 

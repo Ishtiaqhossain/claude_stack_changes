@@ -466,8 +466,9 @@ chain in Gerrit):
 | 4 | 3 | `[4/4] feat: enable CSV export + UI (needs #3)` | Integration test: user passes `--csv` → valid CSV |
 
 Each change builds and is green on its own. A reviewer approves four ~200-line changes they
-fully understand instead of rubber-stamping one 900-line diff. *(This repo's demo ships exactly
-this stack as real PRs #2–#5, with the monolith as the contrasting PR #1.)*
+fully understand instead of rubber-stamping one 900-line diff. *(This repo's `demo/` carries the
+same idea further — an expense-report change landed as the monolith **PR #11** vs an 8-PR
+refactor-first stack, **#12–#19**.)*
 
 ## Common Rationalizations
 
