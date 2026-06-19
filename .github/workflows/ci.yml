@@ -53,3 +53,16 @@ jobs:
           echo "== python stack (demo-py/) =="
           bash "$RUNNER_TEMP/vs.sh" "cd demo-py && python3 -m py_compile *.py && python3 -m unittest" \
             py-0 py-1 py-2 py-3
+
+  corpus:
+    name: independent corpus (external repos)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # Clones a real external repo the author didn't build, splits a bundled
+      # change, and verifies each node in isolation — independence + objective check.
+      - name: yocto-queue — split a bundled change, verify each node
+        run: bash eval/corpus/yocto-queue.sh
