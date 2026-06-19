@@ -34,9 +34,9 @@ The three refactors land **first**, so each feature is a small, obvious diff.
 Personal Claude Code skills live in `~/.claude/skills/<name>/SKILL.md`. Drop this one in:
 
 ```sh
-git clone https://github.com/Ishtiaqhossain/claude_pr_skills.git
+git clone https://github.com/Ishtiaqhossain/claude_split_changes.git
 mkdir -p ~/.claude/skills
-cp -r claude_pr_skills/stack-changes ~/.claude/skills/stack-changes
+cp -r claude_split_changes/stack-changes ~/.claude/skills/stack-changes
 ```
 
 No dependencies — the skill is just `SKILL.md` plus a review-system detector (uses `git`/`bash`).
@@ -59,8 +59,8 @@ method, per-tool stacking recipes, and the Split Plan template are in
 ## See it in action
 
 - **Before vs. after, as real PRs** — [`demo/`](demo/). The same change landed two ways:
-  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/11) is a 1,019-line
-  monolith; [#12–#19](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/12) is the
+  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_split_changes/pull/11) is a 1,019-line
+  monolith; [#12–#19](https://github.com/Ishtiaqhossain/claude_split_changes/pull/12) is the
   refactor-first stack, each PR green on its own. Open #11, try to review it, then walk the
   stack and feel the difference.
   ```sh
