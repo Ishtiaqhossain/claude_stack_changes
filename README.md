@@ -65,9 +65,20 @@ then do the features land, each a small diff against the prepared seams.
 > The monolith and the eight stacked PRs are on the repository's **Pull Requests** tab — open
 > the monolith and try to review it, then walk the stack and feel the difference.
 
+## Local break-up walkthrough
+
+[`demo-split/instruction.md`](demo-split/instruction.md) is a second, self-contained example:
+a 390-line multi-concern `unit-convert` change landed as **one local commit**, then carved into
+a stack of six single-thesis commits by invoking the skill. It includes step-by-step
+instructions to **run the demo yourself locally** and the **captured output** of invoking
+`/split-changes` (review-system detection, the seam map, the resulting stack, and per-commit
+isolation tests). The large change to start from is in [`demo-split/unit-convert/`](demo-split/unit-convert/).
+
 ## Repository layout
 
 ```
-split-changes/SKILL.md   the skill
-demo/                    the expense-report example (base on main)
+split-changes/SKILL.md     the skill
+demo/                      the expense-report example (monolith vs 8-PR stack)
+demo-split/                local break-up walkthrough (large commit -> 6-commit stack)
+demo-split/instruction.md  how to run it + captured /split-changes output
 ```
