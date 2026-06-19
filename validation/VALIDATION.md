@@ -104,6 +104,15 @@ python/unittest (more-itertools), and **go/`go test`** (google/uuid — the firs
 each cloned from code the author didn't write and verified node-by-node. Three of them (node,
 python, go) run continuously in the CI `corpus` matrix.
 
+**What each entry actually proves (important distinction).** Entries 1, 3, and 4 split the
+maintainers' *own* two feature commits — so they prove the **harness** and the **objective
+build-verification** ("each change builds + tests alone") generalize to independent code across
+ecosystems. They do **not** prove the skill's *reasoning* chose the seam (history did). The skill's
+decomposition **reasoning** is what's tested by entry 2 (quick-lru — an *authored* behavior-preserving
+refactor, the seam was a judgment call) and by the flagship demo regen (a full 7-node split authored
+from a monolith). So: build-verification breadth is now strong (3 ecosystems); reasoning-generalization
+is still only shown in JS — extending *that* to another language is the higher-value next step.
+
 **Toolchain reality — why breadth lives in CI.** The local sandbox can't build modern external
 repos: Python is **3.9** (more-itertools needs 3.10+, fails to even import locally), and
 Go/Cargo/Gradle aren't installed at all. So build-system breadth belongs in a **CI matrix** that
