@@ -259,14 +259,22 @@ git push origin HEAD:refs/for/main   # each commit becomes a chained Change
 Submit bottom-up; Gerrit shows the relation chain and blocks out-of-order submits.
 
 ### GitHub with a stacking tool
-`gh` alone has no native stacks, so teams use a stacking tool that manages bases and
-retargeting for you:
+GitHub has **no native commit-per-change model.** Its reviewable unit is always a
+*branch-to-branch diff* (a PR = head branch vs base branch): you can't push a stack of commits
+and have GitHub turn each commit into its own PR, there is no `Change-Id` / relation chain, and
+approval and merge happen at the PR level — never per commit. So on GitHub a stack is *always*
+branches underneath; the only question is whether **you** manage them or a **tool** does.
+
+A stacking tool (Graphite `gt`, `spr`, `ghstack`) gives you the Sapling/Gerrit-style
+**commit-per-change authoring experience on top of** that branch-per-PR substrate: you keep a
+local stack of plain commits, and the tool generates and retargets one branch + one PR per
+commit for you.
 
 ```sh
 gt create -m "refactor: extract seam"      # Graphite: each branch is a change in the stack
 gt create -m "refactor: registry"
 gt submit                                  # opens/updates the whole stack of PRs
-# (spr is an alternative: one commit per PR, auto-managed)
+# spr / ghstack: you stack plain commits; the tool creates a branch + PR per commit
 ```
 On merge of the bottom PR, the tool retargets the next onto trunk automatically.
 
