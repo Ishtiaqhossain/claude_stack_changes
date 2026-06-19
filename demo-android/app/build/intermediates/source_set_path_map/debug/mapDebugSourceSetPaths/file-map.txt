@@ -1,7 +1,0 @@
-com.example.reports.app-pngs-0 /Users/ishtiaqhossain/diff_skill/demo-android/app/build/generated/res/pngs/debug
-com.example.reports.app-resValues-1 /Users/ishtiaqhossain/diff_skill/demo-android/app/build/generated/res/resValues/debug
-com.example.reports.app-packageDebugResources-2 /Users/ishtiaqhossain/diff_skill/demo-android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
-com.example.reports.app-packageDebugResources-3 /Users/ishtiaqhossain/diff_skill/demo-android/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
-com.example.reports.app-debug-4 /Users/ishtiaqhossain/diff_skill/demo-android/app/build/intermediates/merged_res/debug/mergeDebugResources
-com.example.reports.app-debug-5 /Users/ishtiaqhossain/diff_skill/demo-android/app/src/debug/res
-com.example.reports.app-main-6 /Users/ishtiaqhossain/diff_skill/demo-android/app/src/main/res
