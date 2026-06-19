@@ -22,5 +22,5 @@ git checkout -q -B split "$base"
 git cherry-pick --no-edit "$SEEKABLE" >/dev/null && git tag mit-1-seekable      # [1/2]
 git cherry-pick --no-edit "$SUBFACT"  >/dev/null && git tag mit-2-subfactorial  # [2/2]
 
-bash "$here/validation/eval/run-eval.sh" \
+bash "$here/eval/run-eval.sh" \
   "$PWD" "python3 -m unittest discover -s tests -t ." mit-1-seekable mit-2-subfactorial
