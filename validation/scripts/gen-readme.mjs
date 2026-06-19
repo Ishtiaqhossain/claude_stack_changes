@@ -55,8 +55,42 @@ const BEGIN = '<!-- BEGIN:flagship-demo (generated from the expense-report branc
 const END = '<!-- END:flagship-demo -->';
 
 const path = join(root, 'README.md');
-const text = readFileSync(path, 'utf8');
-const re = /<!-- BEGIN:flagship-demo[\s\S]*?-->\n[\s\S]*?\n<!-- END:flagship-demo -->/;
-if (!re.test(text)) { console.error('flagship-demo markers not found in README.md'); process.exit(2); }
-writeFileSync(path, text.replace(re, `${BEGIN}\n${block}\n${END}`));
+let text = readFileSync(path, 'utf8');
+
+// 1) flagship-demo block — pure git. This is what CI's readme-fresh gate checks.
+const demoRe = /<!-- BEGIN:flagship-demo[\s\S]*?-->\n[\s\S]*?\n<!-- END:flagship-demo -->/;
+if (!demoRe.test(text)) { console.error('flagship-demo markers not found in README.md'); process.exit(2); }
+text = text.replace(demoRe, `${BEGIN}\n${block}\n${END}`);
 console.error(`flagship-demo block regenerated: +${grouped} lines, ${files} files, ${n}-change stack`);
+
+// 2) flagship-prs region — opt-in (--prs), needs gh. Used by regen-demo.sh finish
+//    after new PRs exist; NOT run by CI (PR numbers only change on a demo regen).
+if (process.argv.includes('--prs')) {
+  try {
+    const owner = git('remote get-url origin').replace(/.*github\.com[:/]/, '').replace(/\.git$/, '');
+    const prs = (state) => JSON.parse(
+      execSync(`gh pr list --repo ${owner} --state ${state} --json number,headRefName --limit 100`,
+        { cwd: root, encoding: 'utf8' }));
+    const mono = prs('all').find((p) => p.headRefName === 'monolith/expense-report');
+    const stack = prs('open')
+      .filter((p) => p.headRefName.startsWith('expense-stack/'))
+      .map((p) => p.number).sort((a, b) => a - b);
+    const prsRe = /<!-- BEGIN:flagship-prs[\s\S]*?-->[\s\S]*?<!-- END:flagship-prs -->/; // indent-tolerant
+    if (mono && stack.length && prsRe.test(text)) {
+      const base = `https://github.com/${owner}/pull`;
+      const lo = stack[0], hi = stack[stack.length - 1];
+      const range = lo === hi ? `[#${lo}](${base}/${lo})` : `[#${lo}–#${hi}](${base}/${lo})`;
+      const B = '<!-- BEGIN:flagship-prs (updated by validation/scripts/regen-demo.sh finish — do not edit by hand) -->';
+      const E = '<!-- END:flagship-prs -->';
+      const sentence = `[PR&nbsp;#${mono.number}](${base}/${mono.number}) is the monolith (the whole feature in one diff — sized in the diagram above); ${range} is the refactor-first stack.`;
+      text = text.replace(prsRe, `${B}\n  ${sentence}\n  ${E}`);
+      console.error(`flagship-prs updated: monolith #${mono.number}, stack #${lo}–#${hi} (${stack.length} PRs)`);
+    } else {
+      console.error('--prs: no monolith/stack PRs (or markers missing); left flagship-prs unchanged');
+    }
+  } catch (e) {
+    console.error(`--prs: gh query failed; left flagship-prs unchanged: ${e.message}`);
+  }
+}
+
+writeFileSync(path, text);

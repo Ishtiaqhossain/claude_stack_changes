@@ -31,4 +31,8 @@ Exists only to show Layer 1 is trustworthy. **The whole jacket lives in one fold
 - **use / change the skill** → `stack-changes/SKILL.md` (and re-`cp` to `~/.claude/skills/`)
 - **see it in action** → `validation/demo/` (npm) or `validation/demo-py/` (Python)
 - **check what's proven** → `validation/VALIDATION.md`
+- **regenerate the flagship demo after changing the skill** →
+  `validation/scripts/regen-demo.sh teardown --yes` → run `/stack-changes` on the monolith →
+  `validation/scripts/regen-demo.sh finish` (the README's flagship block + PR numbers update from
+  the new stack; `validation/scripts/gen-readme.mjs` is the generator behind it)
 - **understand why it's structured this way** → you're reading it

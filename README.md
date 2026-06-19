@@ -100,10 +100,10 @@ cp -r claude_stack_changes/stack-changes ~/.claude/skills/stack-changes
 ## See it in action
 
 - **Before vs. after, as real PRs** — [`validation/demo/`](validation/demo/) (npm):
-  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith
-  (the whole feature in one diff — sized in the diagram above);
-  [#12–#19](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/12) is the
-  refactor-first stack, each PR green on its own. Open #11, try to review it, then walk the stack
+  <!-- BEGIN:flagship-prs (updated by validation/scripts/regen-demo.sh finish — do not edit by hand) -->
+  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith (the whole feature in one diff — sized in the diagram above); [#12–#19](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/12) is the refactor-first stack.
+  <!-- END:flagship-prs -->
+  Each PR is green on its own — open the monolith, try to review it, then walk the stack
   (`cd validation/demo && npm test`).
 - **Break up a local commit, step by step** — [`validation/demo-split/instruction.md`](validation/demo-split/instruction.md):
   a 390-line commit carved into six single-thesis commits, with steps to reproduce it + the captured
