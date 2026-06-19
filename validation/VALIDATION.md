@@ -8,7 +8,7 @@ expert review framework.
 
 | Item | Status | Evidence |
 |------|--------|----------|
-| Layer 1 — detector fixture matrix (incl. adversarial) passes in CI | ✅ | [`stack-changes/scripts/detect-review-system.test.sh`](stack-changes/scripts/detect-review-system.test.sh) — 12 cases; CI job `detector`. |
+| Layer 1 — detector fixture matrix (incl. adversarial) passes in CI | ✅ | [`stack-changes/scripts/detect-review-system.test.sh`](../stack-changes/scripts/detect-review-system.test.sh) — 12 cases; CI job `detector`. |
 | Layer 2 — decomposition reasoning proven on an *independent* corpus | ◑ **started** | Harness ([`eval/`](eval/)) + **2 independent, build-verified** splits on real external code: yocto-queue (easy) and **quick-lru (hard — a behavior-preserving refactor with tests unchanged, then a feature → exercises the refactor/behavior seam, the hardest to verify)**. Breadth (Go/Cargo/Gradle/Django, run 3×) still open. Rubric + corpus log below. |
 | Layer 3 — per-revision build/test loop in the skill, demonstrated green on 2+ build systems | ✅ | Skill section "Verify the Stack"; [`scripts/verify-stack.sh`](scripts/verify-stack.sh); transcript below; CI job `verify-stack`. |
 | README install commands work as written | ✅ | Clone URL → HTTP 200; repo name `claude_stack_changes`; demo PRs #11–#19 resolve. |

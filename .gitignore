@@ -1,5 +1,5 @@
 node_modules/
 *.log
 .DS_Store
-demo/.stack-body.md
+validation/demo/.stack-body.md
 STACK_PLAN.md

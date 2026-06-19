@@ -23,11 +23,11 @@ jobs:
         with:
           node-version: '20'
       - name: demo (expense-report, npm)
-        run: cd demo && npm run build && npm test
+        run: cd validation/demo && npm run build && npm test
       - name: demo-split (unit-convert, npm)
-        run: cd demo-split/unit-convert && npm run build && npm test
+        run: cd validation/demo-split/unit-convert && npm run build && npm test
       - name: demo-py (report, python)
-        run: cd demo-py && python3 -m py_compile *.py && python3 -m unittest
+        run: cd validation/demo-py && python3 -m py_compile *.py && python3 -m unittest
 
   verify-stack:
     name: per-revision stack verification (npm + python)
@@ -44,7 +44,9 @@ jobs:
       - name: walk each stack node — checkout, build, test, read exit code
         run: |
           # Copy the verifier out of the work tree so branch checkouts can't remove it mid-run.
-          cp scripts/verify-stack.sh "$RUNNER_TEMP/vs.sh"
+          cp validation/scripts/verify-stack.sh "$RUNNER_TEMP/vs.sh"
+          # NOTE: these stack branches/tags predate the validation/ reorg, so on them the
+          # demos still live at the repo root — keep `cd demo` / `cd demo-py` below.
           echo "== npm stack (demo/) =="
           bash "$RUNNER_TEMP/vs.sh" "cd demo && npm run build && npm test" \
             expense-stack/1-model expense-stack/2-query-pipeline expense-stack/3-formatter-seam \
@@ -65,4 +67,4 @@ jobs:
       # Clones a real external repo the author didn't build, splits a bundled
       # change, and verifies each node in isolation — independence + objective check.
       - name: yocto-queue — split a bundled change, verify each node
-        run: bash eval/corpus/yocto-queue.sh
+        run: bash validation/eval/corpus/yocto-queue.sh

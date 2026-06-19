@@ -66,7 +66,7 @@ After
 ```
 
 Neither depends on the other, so they can be reviewed in parallel — and every node still builds and
-tests on its own ([`eval/`](eval/) verifies exactly this).
+tests on its own ([`validation/eval/`](validation/eval/) verifies exactly this).
 
 ## Quick start
 
@@ -102,26 +102,26 @@ cp -r claude_stack_changes/stack-changes ~/.claude/skills/stack-changes
 
 ## See it in action
 
-- **Before vs. after, as real PRs** — [`demo/`](demo/) (npm):
+- **Before vs. after, as real PRs** — [`validation/demo/`](validation/demo/) (npm):
   [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is a 1,019-line
   monolith; [#12–#19](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/12) is the
   refactor-first stack, each PR green on its own. Open #11, try to review it, then walk the stack
-  (`cd demo && npm test`).
-- **Break up a local commit, step by step** — [`demo-split/instruction.md`](demo-split/instruction.md):
+  (`cd validation/demo && npm test`).
+- **Break up a local commit, step by step** — [`validation/demo-split/instruction.md`](validation/demo-split/instruction.md):
   a 390-line commit carved into six single-thesis commits, with steps to reproduce it + the captured
   skill output.
-- **A second build system** — [`demo-py/`](demo-py/) (Python): the same refactor-first split in a
+- **A second build system** — [`validation/demo-py/`](validation/demo-py/) (Python): the same refactor-first split in a
   non-npm project, so the approach isn't tied to one ecosystem.
 
 **Verified, not asserted.** Every node of every demo stack is checked out and built + tested *on
 its own* — enforced in CI across both build systems via
-[`scripts/verify-stack.sh`](scripts/verify-stack.sh) (it runs the project's own command and reads
+[`validation/scripts/verify-stack.sh`](validation/scripts/verify-stack.sh) (it runs the project's own command and reads
 the exit code, so it's build-system-agnostic). The split reasoning is also tested on **independent
 external repos the author didn't build** — `yocto-queue`, and `quick-lru` for a real *refactor-first*
 split (a behavior-preserving refactor with tests unchanged, then the feature) — each node
 build-verified in CI. The review-system detector is proven on a **12-case fixture matrix**,
 including adversarial cases — e.g. a GitHub repo carrying a stray Gerrit `Change-Id` must not be
-misread as Gerrit. Full **[validation methodology](VALIDATION.md)**: the
+misread as Gerrit. Full **[validation methodology](validation/VALIDATION.md)**: the
 "asserted → observed" framework, the evidence, and the checklist.
 
 ## What this is not
@@ -133,10 +133,13 @@ human (or another tool) reviews them.
 ## Repository layout
 
 ```
-stack-changes/        the skill — SKILL.md + a review-system detector (fixture-tested)
-demo/                 before/after example, npm: monolith (PR #11) vs stack (#12–#19)
-demo-split/           local break-up walkthrough + the large sample change
-demo-py/              second build system: the same split in a Python project (tags py-0…py-3)
-scripts/verify-stack.sh   checks out each stack node and builds + tests it
-VALIDATION.md         what's proven (detector matrix, per-node green on npm + Python) and how
+stack-changes/        THE SKILL — SKILL.md + a review-system detector (fixture-tested). Install this.
+validation/           proves the skill works (not needed to use it):
+  demo/                 before/after example, npm: monolith (PR #11) vs stack (#12–#19)
+  demo-split/           local break-up walkthrough + the large sample change
+  demo-py/              second build system: the same split in a Python project (tags py-0…py-3)
+  eval/                 grades splits of real outside repos (yocto-queue, quick-lru)
+  scripts/verify-stack.sh   checks out each stack node and builds + tests it
+  VALIDATION.md         what's proven (detector matrix, per-node green) and how
+MAP.md                one-line tour of every folder — start here if it feels like a lot
 ```
