@@ -53,28 +53,6 @@ cp -r claude_split_changes/stack-changes ~/.claude/skills/stack-changes
 /stack-changes split PR #123 into a stack of reviewable PRs
 ```
 
-**Expected output** — it starts with a **Split Plan** you approve *before* any git happens:
-
-```
-## Split Plan
-### Final goal
-<one sentence: what the whole change accomplishes>
-### Concerns currently mixed together
-1. <concern> — refactor   2. <concern> — behavior   …
-### Proposed stack
-| # | Title | Type | Depends on | Files | Test proof | Risk |
-### Parallelizable changes
-<which changes are independent vs strictly stacked>
-### Land order
-bottom-up: #1 → #2 → …
-### PR/diff/CL description template
-<per-change stack list + base + "depends on">
-```
-
-Then it lands the stack with the right commands for your review system (GitHub, Sapling, Gerrit,
-or local commits with no remote yet). Full method, per-tool recipes, and the plan template are in
-**[`stack-changes/SKILL.md`](stack-changes/SKILL.md)**.
-
 ## Who this is for
 
 **Use it when:**
