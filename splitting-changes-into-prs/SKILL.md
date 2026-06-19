@@ -223,6 +223,29 @@ the incomplete feature **gated behind a flag** (an experiment/config system, or 
 flag) so trunk stays releasable and you avoid a long-lived branch. See
 `git-workflow-and-versioning`.
 
+## Detecting Your Review System
+
+Before you stack, know what you are stacking *on* — the mechanics differ, and only some systems
+offer commit-per-change. [`scripts/detect-review-system.sh`](scripts/detect-review-system.sh)
+classifies the current repo and tells you which path below to use:
+
+| It prints | Use the mechanics for | Commit-per-change? |
+|---|---|---|
+| `sapling` | **Sapling** | native |
+| `gerrit` | **Gerrit** | native |
+| `phabricator` | **Phabricator** | native |
+| `github-stacked` | **GitHub + stacking tool** | via tooling (branch-per-PR underneath) |
+| `github-plain` | **Plain git + GitHub** | no — branch-per-PR only |
+
+It exits `0` when commit-per-change is available, `1` for branch-per-PR. (Its fixture tests live
+beside it in `scripts/detect-review-system.test.sh`.)
+
+**Detect and adapt — don't refuse.** Use the result to pick the right *plumbing*, not to gate
+the skill out of branch-per-PR repos. The decomposition principles — one diff one thesis,
+refactor-first, communicate the dependency — are identical everywhere; only the stacking
+commands change. A plain-GitHub team splitting with branches gets exactly the same review
+benefit as a Sapling team splitting with commits.
+
 ## Stacking in Your Review System
 
 **Principle: let the tool track the stack; you choose the decomposition.** Modern review
