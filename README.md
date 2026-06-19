@@ -19,7 +19,9 @@ change and carves it into a stack of small, single-thesis units of review. Highl
 - **Atomic commits ≠ atomic reviews.** The unit of review is the whole diff, so split the
   *reviewable unit* into a **stack** — a clean commit history inside one big PR isn't enough.
 - **Tool-agnostic.** Neutral terms (a "change") with mappings for GitHub PRs, Sapling/
-  Phabricator diffs, and Gerrit CLs — plus the native stacking workflow for each.
+  Phabricator diffs, and Gerrit CLs — plus the native stacking workflow for each. A bundled
+  [`detect-review-system.sh`](splitting-changes-into-prs/scripts/detect-review-system.sh)
+  classifies the repo and routes to the right mechanics.
 - **Built for scale.** Ownership-aligned splits, presubmit economics, feature-gating over long
   branches, right-sizing (don't over-split), and Google's small-CL / review-speed guidance.
 
@@ -31,8 +33,8 @@ sorting + grouped subtotals + per-category budgets + a CLI** — is landed **two
 
 | | How | What a reviewer faces |
 |---|---|---|
-| **Before** ❌ | **one monolith PR** — `monolith/expense-report` | **1019 insertions** in a single diff that mixes three refactors (model, formatter seam, query pipeline) with five distinct features. One LGTM. |
-| **After** ✅ | a **refactor-first stack of 8 PRs** — `expense-stack/1…8` | each PR makes one argument, builds + tests on its own (43–355 lines), and the three refactors land **first** so each feature is a small diff |
+| **Before** ❌ | [**#11** — one monolith PR](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/11) | **1019 insertions** in a single diff that mixes three refactors (model, formatter seam, query pipeline) with five distinct features. One LGTM. |
+| **After** ✅ | a **refactor-first stack of 8 PRs** — [#12–#19](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/12) | each PR makes one argument, builds + tests on its own (43–355 lines), and the three refactors land **first** so each feature is a small diff |
 
 ```bash
 cd demo
@@ -49,16 +51,16 @@ The first three changes are **pure refactors** — the base report test is **byt
 unchanged and green through all of them**, which is the proof they changed no behavior. Only
 then do the features land, each a small diff against the prepared seams.
 
-| # | Branch | Thesis | Size | Kind |
-|---|--------|--------|------|------|
-| 1 | `…/1-model` | typed `Money`/`Transaction` model | ~104 | refactor |
-| 2 | `…/2-query-pipeline` | route rendering through a query pipeline (identity) | ~49 | refactor |
-| 3 | `…/3-formatter-seam` | extract a `Formatter` interface + registry | ~79 | refactor |
-| 4 | `…/4-formatters` | add csv/json/html/markdown/table/summary | ~355 | feature |
-| 5 | `…/5-filtering` | filter by date / category / min amount | ~43 | feature |
-| 6 | `…/6-sort-group` | sorting + grouping with subtotals | ~139 | feature |
-| 7 | `…/7-budgets` | per-category budgets | ~143 | feature |
-| 8 | `…/8-cli` | wire up the CLI + enable end-to-end | ~133 | feature |
+| PR | Thesis | Size | Kind |
+|----|--------|------|------|
+| [#12](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/12) | typed `Money`/`Transaction` model | ~104 | refactor |
+| [#13](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/13) | route rendering through a query pipeline (identity) | ~49 | refactor |
+| [#14](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/14) | extract a `Formatter` interface + registry | ~79 | refactor |
+| [#15](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/15) | add csv/json/html/markdown/table/summary | ~355 | feature |
+| [#16](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/16) | filter by date / category / min amount | ~43 | feature |
+| [#17](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/17) | sorting + grouping with subtotals | ~139 | feature |
+| [#18](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/18) | per-category budgets | ~143 | feature |
+| [#19](https://github.com/Ishtiaqhossain/claude_pr_skills/pull/19) | wire up the CLI + enable end-to-end | ~133 | feature |
 
 > The monolith and the eight stacked PRs are on the repository's **Pull Requests** tab — open
 > the monolith and try to review it, then walk the stack and feel the difference.
