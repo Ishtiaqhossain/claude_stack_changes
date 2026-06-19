@@ -48,7 +48,7 @@ Run this top to bottom; the rest of the document is the reference for each step.
 4. **Confirm the plan with the user *before touching git.*** Revise until they agree on the shape.
 5. **Execute the mechanics** for the detected system ([Stacking in Your Review System](#stacking-in-your-review-system)).
    **Confirm before any history rewrite or force-push** (see the Safety note there).
-6. **Verify** every change against the [Verification checklist](#verification) — each builds, tests, and stands alone.
+6. **Verify** — run the [per-revision loop](#verify-the-stack-per-revision) (checkout → build → test each node) and confirm the [Verification checklist](#verification).
 7. **Communicate the dependency** in every title and description.
 
 ## A Note on Terminology
@@ -542,6 +542,35 @@ review," "I'll split after approval," and the rest:
 - Hand-splitting what should be a codemod / LSC
 - The dependency lives only in your head — not in any title, description, or stack graph
 - A reviewer has to ask "which change do I start with?"
+
+## Verify the Stack (per-revision)
+
+Don't *assert* that each change builds — **observe it.** The skill doesn't need to understand
+Bazel vs Cargo vs npm; it runs the *project's own* build and test command and reads the exit
+code. That portability is the whole point.
+
+1. **Find the build + test command** — from the manifest you read in
+   [Inspect Local Context](#inspect-local-context-before-you-plan), or ask the user. Default to
+   whatever the repo's CI runs. Examples:
+   `npm run build && npm test` · `cargo build && cargo test` · `go build ./... && go test ./...` ·
+   `mvn -q verify` · `./gradlew test` · `pytest` · `bazel test //...`.
+2. **Walk the stack bottom-up.** For each change, in order:
+   ```sh
+   git checkout <change-ref>     # or `sl goto`, etc.
+   <build command>              # exit non-zero on failure
+   <test command>
+   ```
+   Record green/red for that node.
+3. **Stop at the first red.** A red node means the stack is invalid there — a change references
+   code introduced by a later one, or a "refactor" actually changed behavior. **Report which node
+   failed and why; do not present an unverified stack as done.** Fix the decomposition, re-verify.
+
+A **refactor** change has a sharper check: build + test green **and** its test files are
+*unchanged* from the parent (`git diff <parent> -- <test paths>` is empty) — that empty diff is
+the proof it preserved behavior.
+
+> When done, restore the user's working state (`git checkout -` / their branch) — don't leave
+> them on a detached revision. And per the Safety note, confirm before any rebase/force-push.
 
 ## Verification
 
