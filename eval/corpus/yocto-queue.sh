@@ -9,6 +9,8 @@ work="$(mktemp -d)"; trap 'rm -rf "$work"' EXIT
 
 git clone -q https://github.com/sindresorhus/yocto-queue "$work/yq"
 cd "$work/yq"
+git config user.email corpus@ci.local      # CI runners have no git identity
+git config user.name  corpus
 npm install --no-audit --no-fund --silent
 
 base="$(git rev-parse 5bf850c^)"                 # before .peek()/.drain()
