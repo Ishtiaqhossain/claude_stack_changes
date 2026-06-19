@@ -37,6 +37,11 @@ After
 
 The three refactors land **first**, so each feature is a small, obvious diff.
 
+Refactor-first is the seam this example happens to use — and the most common one — but it's not the
+whole skill. The guiding principle is **one diff, one thesis**; the skill finds whatever natural
+seam separates the theses (independent features, distinct behavior changes, ownership boundaries,
+risky-vs-safe), and refactor-first is just the highest-leverage of them.
+
 ## Quick start
 
 **Install** — personal Claude Code skills live in `~/.claude/skills/{skill-name}/SKILL.md`:

@@ -6,8 +6,11 @@ design, not generalization. This corpus closes that gap with **independent** rep
 
 ## What counts as a corpus entry
 A real, public project **the skill's author did not build**, plus a **fat commit** from its
-history that mixes concerns (refactor + feature, or two features). You split that commit into a
-refactor-first stack (as tags/branches), then grade it.
+history that mixes concerns. You split that commit into a stack of single-thesis changes (as
+tags/branches), then grade it. The seam varies by case — refactor + feature is the most common,
+but the corpus deliberately also covers other seams (e.g. two independent behaviors), so it tests
+the principle, not just one technique. (The `yocto-queue` entry splits `.peek()` + `.drain()` —
+two independent behaviors, no refactor.)
 
 ## How to run one
 ```sh

@@ -9,7 +9,7 @@ expert review framework.
 | Item | Status | Evidence |
 |------|--------|----------|
 | Layer 1 — detector fixture matrix (incl. adversarial) passes in CI | ✅ | [`stack-changes/scripts/detect-review-system.test.sh`](stack-changes/scripts/detect-review-system.test.sh) — 12 cases; CI job `detector`. |
-| Layer 2 — decomposition reasoning proven on an *independent* corpus | ◑ **started** | Harness ([`eval/`](eval/)) + **2 independent, build-verified** splits on real external code: yocto-queue (easy) and **quick-lru (hard — a behavior-preserving refactor with tests unchanged, then a feature → exercises the headline claim)**. Breadth (Go/Cargo/Gradle/Django, run 3×) still open. Rubric + corpus log below. |
+| Layer 2 — decomposition reasoning proven on an *independent* corpus | ◑ **started** | Harness ([`eval/`](eval/)) + **2 independent, build-verified** splits on real external code: yocto-queue (easy) and **quick-lru (hard — a behavior-preserving refactor with tests unchanged, then a feature → exercises the refactor/behavior seam, the hardest to verify)**. Breadth (Go/Cargo/Gradle/Django, run 3×) still open. Rubric + corpus log below. |
 | Layer 3 — per-revision build/test loop in the skill, demonstrated green on 2+ build systems | ✅ | Skill section "Verify the Stack"; [`scripts/verify-stack.sh`](scripts/verify-stack.sh); transcript below; CI job `verify-stack`. |
 | README install commands work as written | ✅ | Clone URL → HTTP 200; repo name `claude_stack_changes`; demo PRs #11–#19 resolve. |
 | Detector failure modes + no-script fallback documented | ✅ | `SKILL.md` → "Detecting Your Review System". |
@@ -73,7 +73,7 @@ one-shot — and it is the single biggest remaining gap between "works here" and
 | # | Repo | Bundled change → split | Build sys | Topo valid (objective) | Notes |
 |---|------|------------------------|-----------|------------------------|-------|
 | 1 | [`sindresorhus/yocto-queue`](https://github.com/sindresorhus/yocto-queue) | `.peek()` + `.drain()` → 2 nodes | npm / ava | ✅ `verify-stack` green (2/2) | Real external code. **Easy** — two independent features, trivial topology, no refactor. Rubric: topo ✅ · separation n/a · no-over-split ✅ · test-proof ✅ · mechanics ✅ (github→branch-per-PR). |
-| 2 | [`sindresorhus/quick-lru`](https://github.com/sindresorhus/quick-lru) | add `.expiresIn()` → **refactor-first**: [1] extract `#getItem` seam, [2] add feature | npm / ava | ✅ `verify-stack` green (2/2) | Real external code. **Hard — exercises the headline claim.** Node 1 is a genuine *behavior-preserving* refactor: `test.js` byte-unchanged vs base **and** ava green (71) — the proof. Node 2 adds the feature on the seam (ava 74). Rubric: topo ✅ · refactor/behavior separated ✅ (test diff = 0) · no-over-split ✅ · test-proof ✅ · mechanics ✅. |
+| 2 | [`sindresorhus/quick-lru`](https://github.com/sindresorhus/quick-lru) | add `.expiresIn()` → **refactor-first**: [1] extract `#getItem` seam, [2] add feature | npm / ava | ✅ `verify-stack` green (2/2) | Real external code. **Hard — exercises the refactor/behavior seam** (the most common one, and the hardest to verify). Node 1 is a genuine *behavior-preserving* refactor: `test.js` byte-unchanged vs base **and** ava green (71) — the proof. Node 2 adds the feature on the seam (ava 74). Rubric: topo ✅ · refactor/behavior separated ✅ (test diff = 0) · no-over-split ✅ · test-proof ✅ · mechanics ✅. |
 
 Reproduce #1:
 ```sh
@@ -98,6 +98,6 @@ git checkout -B split "$(git rev-parse 6c0efa5^)"            # base, before .exp
 
 **Honest status:** **two independent, build-verified** splits now — one *easy* (yocto-queue, two
 features) and one *hard* (quick-lru: a real behavior-preserving refactor with `test.js` unchanged,
-then a feature). The hard case exercises the skill's headline (refactor-first / clean separation)
-on code the author didn't write. Still missing: **breadth** — Go/Cargo/Gradle/Django, run 3× each
+then a feature). The hard case exercises the refactor/behavior seam — the most common one and the
+hardest to verify (clean separation, behavior preserved) — on code the author didn't write. Still missing: **breadth** — Go/Cargo/Gradle/Django, run 3× each
 with per-repo pass rates, which needs a CI matrix with those toolchains. That is the open work.
