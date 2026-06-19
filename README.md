@@ -24,14 +24,13 @@ Before — one change
   main ──●  the whole feature in a single diff: +1,019 lines across 27 files, one "LGTM"
 
 After — a refactor-first stack (refactors first; each builds + tests on its own, lands bottom-up):
-   [1/8] refactor: introduce a Money/Transaction domain model
-   [2/8] refactor: route rendering through a query pipeline
-   [3/8] refactor: extract a Formatter interface + registry
-   [4/8] feat: add csv, json, html, markdown, table, and summary formatters
-   [5/8] feat: add filtering by date range, category, and minimum amount
-   [6/8] feat: add sorting and grouping by category with subtotals
-   [7/8] feat: add per-category budgets
-   [8/8] feat: wire up the CLI and enable the full feature end to end
+   [1/7] refactor: introduce a Money/Transaction domain model
+   [2/7] refactor: route rendering through a query pipeline
+   [3/7] refactor: extract a Formatter interface + registry
+   [4/7] feat: add csv, json, html, markdown, table, and summary formatters
+   [5/7] feat: add filtering by date range, category, and minimum amount, with sorting and grouping
+   [6/7] feat: add per-category budgets
+   [7/7] feat: wire up the CLI and enable the full feature end to end
 ```
 <!-- END:flagship-demo -->
 
@@ -101,7 +100,7 @@ cp -r claude_stack_changes/stack-changes ~/.claude/skills/stack-changes
 
 - **Before vs. after, as real PRs** — [`validation/demo/`](validation/demo/) (npm):
   <!-- BEGIN:flagship-prs (updated by validation/scripts/regen-demo.sh finish — do not edit by hand) -->
-  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith (the whole feature in one diff — sized in the diagram above); [#20–#27](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/20) is the refactor-first stack.
+  [PR&nbsp;#11](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/11) is the monolith (the whole feature in one diff — sized in the diagram above); [#28–#34](https://github.com/Ishtiaqhossain/claude_stack_changes/pull/28) is the refactor-first stack.
   <!-- END:flagship-prs -->
   Each PR is green on its own — open the monolith, try to review it, then walk the stack
   (`cd validation/demo && npm test`).
