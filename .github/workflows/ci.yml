@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  detector:
+    name: review-system detector tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: fixture tests
+        run: bash stack-changes/scripts/detect-review-system.test.sh
+
+  demos:
+    name: demo test suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # On a stack PR branch, `demo/` holds that change's state, so this run
+      # verifies the change builds + tests on its own (the skill's core claim).
+      - name: demo (expense-report)
+        run: cd demo && npm run build && npm test
+      - name: demo-split (unit-convert)
+        run: cd demo-split/unit-convert && npm run build && npm test
