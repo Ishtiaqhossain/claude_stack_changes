@@ -1,8 +1,8 @@
-"""A tiny report renderer. Today it only renders plain text."""
+"""A tiny report renderer. Rendering is delegated to a formatter; the output is
+unchanged (still plain text) — this is a pure refactor."""
+
+from formatter import TextFormatter
 
 
 def render(title, rows):
-    lines = [title, "=" * len(title)]
-    for label, value in rows:
-        lines.append(f"{label}: {value}")
-    return "\n".join(lines)
+    return TextFormatter().format(title, rows)
