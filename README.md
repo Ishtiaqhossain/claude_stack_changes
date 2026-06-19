@@ -29,21 +29,31 @@ where **each change makes exactly one argument and stands on its own**.
 
 The three refactors land **first**, so each feature is a small, obvious diff.
 
+## Install
+
+Personal Claude Code skills live in `~/.claude/skills/<name>/SKILL.md`. Drop this one in:
+
+```sh
+git clone https://github.com/Ishtiaqhossain/claude_pr_skills.git
+mkdir -p ~/.claude/skills
+cp -r claude_pr_skills/stack-changes ~/.claude/skills/stack-changes
+```
+
+No dependencies — the skill is just `SKILL.md` plus a review-system detector (uses `git`/`bash`).
+
 ## Use it
 
-1. **Install** — copy the skill into your Claude Code skills folder:
-   ```sh
-   cp -r stack-changes ~/.claude/skills/
-   ```
-2. **Invoke** — in Claude Code, ask in plain language or run the command:
-   ```
-   /stack-changes break up this PR
-   ```
+In Claude Code, invoke it by name — or just ask in plain language:
+
+```
+/stack-changes split this large PR into a stack
+/stack-changes break up my last local commit into single-thesis commits
+/stack-changes create a Split Plan before I touch git
+```
 
 It detects your review system (GitHub, Sapling, Gerrit, or local commits with no remote yet),
-proposes the split, and lands the stack with the right commands for that system.
-
-The full method, the per-tool stacking recipes, and the split-plan template are in
+proposes the split, and lands the stack with the right commands for that system. The full
+method, per-tool stacking recipes, and the Split Plan template are in
 **[`stack-changes/SKILL.md`](stack-changes/SKILL.md)**.
 
 ## See it in action
@@ -54,7 +64,7 @@ The full method, the per-tool stacking recipes, and the split-plan template are 
   refactor-first stack, each PR green on its own. Open #11, try to review it, then walk the
   stack and feel the difference.
   ```sh
-  cd demo && npm test
+  cd demo && npm test     # the demos are Node projects (Node 18+)
   ```
 
 - **Break up a local commit, step by step** — [`demo-split/instruction.md`](demo-split/instruction.md):
