@@ -35,6 +35,21 @@ obvious to a reviewer. The single most important move is **refactor-first** — 
 needs existing code reshaped, the reshaping ships *before* the feature, as its own changes, so
 the feature itself lands as a small, obvious diff.
 
+## Procedure
+
+Run this top to bottom; the rest of the document is the reference for each step.
+
+1. **Detect the review system** — run [`scripts/detect-review-system.sh`](scripts/detect-review-system.sh).
+   If you can't run it (no shell / sandbox / permissions), ask the fallback questions in
+   [Detecting Your Review System](#detecting-your-review-system) instead of guessing.
+2. **Map the end state** — `git diff` / `git show` the change; list every file and *why* it's touched.
+3. **Emit a [Split Plan](#the-split-plan-the-artifact-to-produce)** — the proposed stack, ordered refactor-first.
+4. **Confirm the plan with the user *before touching git.*** Revise until they agree on the shape.
+5. **Execute the mechanics** for the detected system ([Stacking in Your Review System](#stacking-in-your-review-system)).
+   **Confirm before any history rewrite or force-push** (see the Safety note there).
+6. **Verify** every change against the [Verification checklist](#verification) — each builds, tests, and stands alone.
+7. **Communicate the dependency** in every title and description.
+
 ## A Note on Terminology
 
 The unit of review has different names in different systems. This skill says **"change."**
@@ -305,6 +320,25 @@ classifies the current repo and tells you which path below to use:
 It exits `0` when commit-per-change is available, `1` for branch-per-PR. (Its fixture tests live
 beside it in `scripts/detect-review-system.test.sh`.)
 
+**The detector is a heuristic — treat the output as a hint and override it when it's wrong.**
+Known failure modes:
+- **False `gerrit`** — it keys on `Change-Id:` trailers in the last 30 commits, so a repo that
+  merely *took a patch* from a Gerrit shop can trip it. If you don't push to `refs/for/*`, you're
+  not on Gerrit.
+- **Graphite missed** — it looks for `.git/.graphite_repo_config`; a Graphite user who hasn't
+  `gt init`-ed (fresh checkout) degrades silently to `github-plain`. If you use `gt`, treat it as
+  `github-stacked`.
+- **Non-GitHub remotes** (GitLab, Bitbucket, self-hosted) fall through to `git-local`/`unknown` —
+  they're branch-per-PR (MRs), so use the plain-git mechanics.
+
+**If you can't run the script**, don't guess — ask the user three questions:
+1. Where do code reviews happen — GitHub PRs, Phabricator/Sapling diffs, Gerrit CLs, or just
+   local commits for now?
+2. Do you use a stacking tool (Graphite `gt`, `spr`, `ghstack`)?
+3. Is there a remote yet, or is this local-only?
+
+Then pick the matching mechanics below.
+
 **It works before any remote exists.** A `git-local` repo (commits, no remote) is the normal
 starting point. Split your **local commit stack** *now* — `git rebase -i` to split/reorder/squash
 commits, or `git reset` to uncommit and re-stage in single-thesis pieces — and bind each change
@@ -322,6 +356,16 @@ benefit as a Sapling team splitting with commits.
 **Principle: let the tool track the stack; you choose the decomposition.** Modern review
 systems make stacked changes first-class and auto-retarget descendants for you — the manual
 rebase dance below is only needed when you have no stacking tool.
+
+> **⚠ Safety — history rewrite & force-push.** Several mechanics below run `git rebase` / `git reset`
+> (which rewrite history) and `git push --force-with-lease`. **Confirm with the user before
+> rewriting history or force-pushing, and never force-push a shared or protected branch**
+> (`main`/`master`, a release branch, or anyone else's branch). Force-push only *your own* stack
+> branches. These are hard-to-reverse, outward-facing actions — pause and check first.
+
+> **Tool specifics drift.** The behaviors below (Sapling auto-restack, Graphite auto-retarget on
+> merge, the exact `gt` / `spr` / `ghstack` flags) are current as of writing. If an invocation has
+> changed, the *principle* still holds — confirm the exact command against the tool's own docs.
 
 ### Sapling (Meta-style stacked diffs)
 Stacks are the default. Each commit is a change; the stack is just your commit stack.
