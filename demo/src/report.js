@@ -1,18 +1,11 @@
 import { toTransactions } from './transaction.js';
 import { applyQuery } from './query.js';
+import { getFormatter } from './formatters/index.js';
 
-// Builds a plain-text expense report. Rendering now routes through the query
-// pipeline (currently the identity query) so filtering/sorting/grouping can be
-// added without touching this function. Text output is unchanged.
+// Builds an expense report. Rendering is delegated to a formatter looked up in
+// the registry; with the identity query and the text formatter the output is
+// unchanged — the seam is behavior-preserving (the report test still passes).
 export function renderReport(title, transactions) {
   const result = applyQuery(toTransactions(transactions));
-  const lines = [title, '='.repeat(title.length)];
-  for (const group of result.groups) {
-    for (const t of group.rows) {
-      lines.push(`${t.date}  ${t.category}  ${t.description}  ${t.amount.toString()}`);
-    }
-  }
-  lines.push('-'.repeat(title.length));
-  lines.push(`TOTAL  ${result.total.toString()}`);
-  return lines.join('\n');
+  return getFormatter('text').format(title, result);
 }
