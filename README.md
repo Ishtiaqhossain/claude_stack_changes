@@ -5,7 +5,7 @@ A Claude Code skill that breaks a large change into a **stack of small, single-t
 
 > **One diff, one thesis.** Land changes like a senior engineer.
 
-![Claude Code producing a Split Plan from a 1,000-line PR](assets/split-plan.svg)
+![Claude Code producing a Split Plan from a 1,000-line PR](assets/split-plan.v2.svg)
 
 ## What it does
 
